@@ -108,7 +108,7 @@ public class Main
             float[] valueHDG = xpc.getDREF(drefHDG);
             float[] valueHDGBug = xpc.getDREF(drefHDGBug);
             float[] valueAltitude = xpc.getDREF(drefAltitude);
-            float bugged = 170;
+            float bugged = 50;
             float rwyHDG = valueHDGBug[0];
             // float[] value2 = xpc.getDREF(dref2);
             // System.out.println(String.valueOf(value[0]));
