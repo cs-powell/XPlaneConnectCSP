@@ -210,7 +210,6 @@ public class Main
             float[] valueAltitude = xpc.getDREF(drefAltitude);
             float bugged = 50;
             float rwyHDG = valueHDGBug[0];
-    
         /*
          * Outputs
          */
