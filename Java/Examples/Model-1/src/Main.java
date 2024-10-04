@@ -1,9 +1,17 @@
 package gov.nasa.xpc.ex;
 
 import gov.nasa.xpc.XPlaneConnect;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.SocketException;
 import java.util.Arrays;
+import javax.swing.*;
+import javax.swing.border.Border;
+
+import java.awt.*;
 
 /**
  * An example program demonstrating the basic features of the X-Plane Connect toolbox.
@@ -58,15 +66,103 @@ public class Main
 
 
         System.out.println("Trying something new!!");
-        int aircraft = 0;
+        
 
 
 
-        // JFrame container = new JFrame();
-        // Dimension size = new Dimension(500, 500);
-        // container.setPreferredSize(size);
-        // container.setVisible(true);
+        JFrame frame = new JFrame();
+        frame.setPreferredSize(new Dimension(300,100));
+        frame.setLayout(new GridLayout(1,2));
+        frame.setVisible(true);
 
+        JPanel display = new JPanel();
+        display.setPreferredSize(new Dimension(100,100));
+        display.setLayout(new GridLayout(2,4));
+
+        Font fontTitles = new Font("Impact", 1,40);
+        Font fontData = new Font("Monospaced", 1,30);
+        JLabel titleOne = new JLabel("Elevator");
+        titleOne.setFont(fontTitles);
+        titleOne.setHorizontalAlignment(SwingConstants.CENTER);
+        titleOne.setVerticalAlignment(SwingConstants.BOTTOM);
+        JLabel titleTwo = new JLabel("Roll");
+        titleTwo.setFont(fontTitles);
+        titleTwo.setHorizontalAlignment(SwingConstants.CENTER);
+        titleTwo.setVerticalAlignment(SwingConstants.BOTTOM);
+        JLabel titleThree = new JLabel("Yaw");
+        titleThree.setFont(fontTitles);
+        titleThree.setHorizontalAlignment(SwingConstants.CENTER);
+        titleThree.setVerticalAlignment(SwingConstants.BOTTOM);
+        JLabel titleFour = new JLabel("Throttle");
+        titleFour.setFont(fontTitles);
+        titleFour.setHorizontalAlignment(SwingConstants.CENTER);
+        titleFour.setVerticalAlignment(SwingConstants.BOTTOM);
+        JLabel one = new JLabel();
+        one.setFont(fontData);
+        one.setHorizontalAlignment(SwingConstants.CENTER);
+        one.setVerticalAlignment(SwingConstants.TOP);
+        JLabel two = new JLabel();
+        two.setFont(fontData);
+        two.setHorizontalAlignment(SwingConstants.CENTER);
+        two.setVerticalAlignment(SwingConstants.TOP);
+        JLabel three = new JLabel();
+        three.setFont(fontData);
+        three.setHorizontalAlignment(SwingConstants.CENTER);
+        three.setVerticalAlignment(SwingConstants.TOP);
+        JLabel four = new JLabel();
+        four.setFont(fontData);
+        four.setHorizontalAlignment(SwingConstants.CENTER);
+        four.setVerticalAlignment(SwingConstants.TOP);
+
+        one.setText("Test");
+        two.setText("Test");
+        three.setText("Test");
+        four.setText("Test");
+        display.add(titleOne);
+        display.add(titleTwo);
+        display.add(titleThree);
+        display.add(titleFour);
+        display.add(one);
+        display.add(two);
+        display.add(three);
+        display.add(four);
+
+        JPanel visualizer = new JPanel();
+        visualizer.setLayout(new GridLayout(1,2));
+
+
+        //Col 1 of Visualizer
+        JPanel grid = new JPanel();
+        grid.setMinimumSize(new Dimension(100,100));
+        //grid.setOpaque(true);
+        // grid.setLayout(null);
+        grid.setBackground(Color.black);
+        grid.setVisible(true);
+        Integer layer1 = 0;
+        Integer layer2 = 1;
+    //    grid.setLayout(new GridLayout(1,1));
+    grid.setLayout(new OverlayLayout(grid));
+
+        yokePosition yoke = new yokePosition(grid.getWidth(), grid.getHeight());
+        axis axis = new axis(grid.getWidth(), grid.getHeight());
+        
+        // grid.setLayer(axis, layer1);
+        grid.add(axis);
+        grid.add(yoke);
+        // grid.setLayer(yoke, layer2);
+        
+        Border greenLine = BorderFactory.createLineBorder(Color.green);
+        grid.setBorder(greenLine);
+
+        visualizer.add(grid);
+
+
+        //Col 2 of Visualizer
+
+        
+        frame.add(display);
+        frame.add(visualizer);
+        frame.pack();
 
         // JLabel text = new JLabel("Hello");
         // JLabel text2 = new JLabel("Hello");
@@ -79,29 +175,33 @@ public class Main
         // container.add(display);
         // container.pack();
 
+
+
+
+        int aircraft = 0;
         boolean takeoff = true;
         boolean climb = false;
         boolean cruise = false;
         boolean throttleFull = false;
         boolean brakeOff = false;
         boolean switchTrack = false;
+        String dref = "sim/cockpit2/gauges/indicators/airspeed_kts_pilot";
+        String dref2 = "sim/flightmodel/position/true_phi";
+        String drefHDG = "sim/cockpit2/gauges/indicators/heading_AHARS_deg_mag_pilot";
+        String drefHDGBug = "sim/cockpit/autopilot/heading_mag";
+        String drefAltitude = "sim/cockpit2/gauges/indicators/altitude_ft_pilot";
+
+        File file = new File("/Users/flyingtopher/Desktop/Code Citadel/School/2. Research/Fork Clone/XPlaneConnectCSP/Java/Examples/Model-1/src/output");
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+        FileWriter fw = new FileWriter(file, true);
+        BufferedWriter bw = new BufferedWriter(fw);
 
         while(true) {
-
             //THE GETTERS
             double[] posi1 = xpc.getPOSI(aircraft); // FIXME: change this to 64-bit double
             float[] ctrl1 = xpc.getCTRL(aircraft);
-
-            // String dref = "sim/cockpit2/gauges/indicators/airspeed_kts_copilot";
-            String dref = "sim/cockpit2/gauges/indicators/airspeed_kts_pilot";
-            String dref2 = "sim/flightmodel/position/true_phi";
-            String drefHDG = "sim/cockpit2/gauges/indicators/heading_AHARS_deg_mag_pilot";
-            String drefHDGBug = "sim/cockpit/autopilot/heading_mag";
-            String drefAltitude = "sim/cockpit2/gauges/indicators/altitude_ft_pilot";
-
-           
-           
-
 
             float[] value = xpc.getDREF(dref);
             float[] value2 = xpc.getDREF(dref2);
@@ -110,19 +210,65 @@ public class Main
             float[] valueAltitude = xpc.getDREF(drefAltitude);
             float bugged = 50;
             float rwyHDG = valueHDGBug[0];
-            // float[] value2 = xpc.getDREF(dref2);
-            // System.out.println(String.valueOf(value[0]));
+    
+        /*
+         * Outputs
+         */
+            // System.out.format("\r[Elevator: %2f] [Roll: %2f] [Yaw: %2f] ---- [Throttle:%2f] ---- [Flaps: %2f] -- [Data Ref: %2f] -- [T/O: %b ][Cruise: %b ]",
+            //          ctrl1[0], ctrl1[1], ctrl1[2], ctrl1[3], ctrl1[5], valueAltitude[0], takeoff, cruise);
 
-            // System.out.format("Loc: (%4f, %4f, %4f) Aileron:%2f Elevator:%2f Rudder:%2f\n",
-            //         posi1[0], posi1[1], posi1[2], ctrl1[1], ctrl1[0], ctrl1[2]);
-
-
-            // System.out.f ormat("\rControl Surfaces: [Elevator: %2f] [Roll: %2f] [Yaw: %2f] ||| Power: [Throttle:%2f] ||| Secondary Control Surfaces: [Flaps: %2f]",
-            //          ctrl1[0], ctrl1[1], ctrl1[2], ctrl1[3], ctrl1[5]);
-
-            System.out.format("\r[Elevator: %2f] [Roll: %2f] [Yaw: %2f] ---- [Throttle:%2f] ---- [Flaps: %2f] -- [Data Ref: %2f] -- [T/O: %b ][Cruise: %b ]",
+            String log = String.format("[Elevator: %2f] [Roll: %2f] [Yaw: %2f] [Throttle:%2f] [Flaps: %2f] [Data Ref: %2f] [T/O: %b ][Cruise: %b ]",
                      ctrl1[0], ctrl1[1], ctrl1[2], ctrl1[3], ctrl1[5], valueAltitude[0], takeoff, cruise);
 
+            one.setText(String.valueOf(ctrl1[0]));
+            if(ctrl1[0] >= 0 ){
+                one.setForeground(Color.green);
+            } else {
+                one.setForeground(Color.red);
+            }
+            two.setText(String.valueOf(ctrl1[1]));
+            if(ctrl1[1] >= 0 ){
+                two.setForeground(Color.green);
+            } else {
+                two.setForeground(Color.red);
+            }
+            three.setText(String.valueOf(ctrl1[2]));
+            if(ctrl1[2] >= 0 ){
+                three.setForeground(Color.green);
+            } else {
+                three.setForeground(Color.red);
+            }
+            four.setText(String.valueOf(ctrl1[3]));
+            if(ctrl1[3] >= 0 ){
+                four.setForeground(Color.green);
+            } else {
+                four.setForeground(Color.red);
+            }
+
+            yoke.setXBound(grid.getWidth());
+            yoke.setYBound(grid.getHeight());
+            yoke.setX(ctrl1[1]);
+            yoke.setY(ctrl1[0]);
+            yoke.repaint();
+
+            axis.setXBound(grid.getWidth());
+            axis.setYBound(grid.getHeight());
+            axis.repaint();
+
+
+
+
+            //Writing Data to a File
+            try {
+                bw.write(log + "\n");
+                bw.flush();
+            } catch (IOException e) {
+                System.out.println("Log Data Failed");
+            }
+          
+        /*
+         * Flight Controls
+         */
             // //Basic Autopilot For Roll (based on yoke position)
             // float[] rollRight = {-998.0f, ctrl1[1]-(ctrl1[1]/2)};
             // float[] rollLeft = {-998.0f, ctrl1[1]-(ctrl1[1]/2)};
@@ -140,6 +286,7 @@ public class Main
             // } else if(value[0] > 0) {
             //     xpc.sendCTRL(pitchDown);
             // }
+
             if(valueAltitude[0] > 1000f && !switchTrack){
                 System.out.println("In switch");
                 takeoff = false;
@@ -231,12 +378,7 @@ public class Main
              }
 
             }
-             
-
             
-            // text.setText(String.valueOf(value[0]));
-            // display.add(elevator);
-            // System.out.println("");
             try {
                 Thread.sleep(0);
             }
@@ -261,32 +403,6 @@ public class Main
             // System.out.println("Un-pausing");
             // xpc.pauseSim(false);
             
-
-            //Let sim run for 10 seconds
-            try { Thread.sleep(10000); } catch (InterruptedException ex) {}
-
-            System.out.println("Stowing landing gear");
-            xpc.sendDREF("sim/cockpit/switches/gear_handle_status", 1);
-
-            //Let sim run for 10 seconds
-            try { Thread.sleep(10000); } catch (InterruptedException ex) {}
-
-            System.out.println("Checking gear and sim status");
-            String[] drefs = new String[]
-            {
-                "sim/cockpit/switches/gear_handle_status",
-                "sim/operation/override/override_planepath"
-            };
-            float[][] results = xpc.getDREFs(drefs);
-
-            if(results[0][0] == 1)
-            {
-                System.out.println("Gear stowed.");
-            }
-            else
-            {
-                System.out.println("Error stowing gear");
-            }
             System.out.println("Example complete");
         }
         catch (SocketException ex)
@@ -298,5 +414,86 @@ public class Main
             System.out.println("Something went wrong with one of the commands. (Error message was '" + ex.getMessage() + "'.)");
         }
         System.out.println("Exiting");
+    }
+
+
+    //Helper Methods
+    // public static void logData (BufferedWriter bw, String log) {
+    //         bw.write(log);
+    // }
+}
+
+
+class axis extends JComponent {
+
+    int xBound = 0;
+    int yBound = 0;
+
+    axis(int currentX, int currentY){
+        xBound = currentX;
+        yBound = currentY;
+    }
+
+    public void paint(Graphics g)
+    {
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setColor(Color.green);
+        g2.drawLine(xBound/2, 0, xBound/2, yBound);
+        g2.drawLine(0, yBound/2, xBound, yBound/2);
+    }
+
+    public void setXBound(int newX){
+        this.xBound = newX;
+    }
+
+    public void setYBound(int newY){
+        this.yBound = newY;
+    }
+
+}
+
+
+
+
+
+class yokePosition extends JComponent {
+    float x = 0;
+    int xBound = 0;
+    float y = 0;
+    int yBound = 0;
+
+    yokePosition(int currentX, int currentY){
+        xBound = currentX;
+        yBound = currentY;
+    }
+
+
+    yokePosition(){
+       
+    }
+  
+    public void paint(Graphics g)
+    {
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setColor(Color.red);
+        int currX = (int)(x*xBound) + xBound/2;
+        int currY = (int)(y*yBound) + yBound/2;
+        System.out.println("CurrX, CurrY: " + currX +", " + currY);
+        g2.drawOval(currX, currY, 50, 50);
+    }
+
+    public void setX(float newX){
+        this.x = newX;
+    }
+
+    public void setXBound(int newX){
+        this.xBound = newX;
+    }
+
+    public void setY(float newY){
+        this.y = newY;
+    }
+    public void setYBound(int newY){
+        this.yBound = newY;
     }
 }
