@@ -63,12 +63,7 @@ public class Main
 
             xpc.sendDATA(data);
 
-
-
         System.out.println("Trying something new!!");
-        
-
-
 
         JFrame frame = new JFrame();
         frame.setPreferredSize(new Dimension(300,100));
@@ -199,10 +194,10 @@ public class Main
         BufferedWriter bw = new BufferedWriter(fw);
 
         while(true) {
+
             //THE GETTERS
             double[] posi1 = xpc.getPOSI(aircraft); // FIXME: change this to 64-bit double
             float[] ctrl1 = xpc.getCTRL(aircraft);
-
             float[] value = xpc.getDREF(dref);
             float[] value2 = xpc.getDREF(dref2);
             float[] valueHDG = xpc.getDREF(drefHDG);
@@ -220,25 +215,25 @@ public class Main
                      ctrl1[0], ctrl1[1], ctrl1[2], ctrl1[3], ctrl1[5], valueAltitude[0], takeoff, cruise);
 
             one.setText(String.valueOf(ctrl1[0]));
-            if(ctrl1[0] >= 0 ){
+            if(ctrl1[0] >= 0 ) {
                 one.setForeground(Color.green);
             } else {
                 one.setForeground(Color.red);
             }
             two.setText(String.valueOf(ctrl1[1]));
-            if(ctrl1[1] >= 0 ){
+            if(ctrl1[1] >= 0 ) {
                 two.setForeground(Color.green);
             } else {
                 two.setForeground(Color.red);
             }
             three.setText(String.valueOf(ctrl1[2]));
-            if(ctrl1[2] >= 0 ){
+            if(ctrl1[2] >= 0 ) {
                 three.setForeground(Color.green);
             } else {
                 three.setForeground(Color.red);
             }
             four.setText(String.valueOf(ctrl1[3]));
-            if(ctrl1[3] >= 0 ){
+            if(ctrl1[3] >= 0 ) {
                 four.setForeground(Color.green);
             } else {
                 four.setForeground(Color.red);
@@ -249,13 +244,9 @@ public class Main
             yoke.setX(ctrl1[1]);
             yoke.setY(ctrl1[0]);
             yoke.repaint();
-
             axis.setXBound(grid.getWidth());
             axis.setYBound(grid.getHeight());
             axis.repaint();
-
-
-
 
             //Writing Data to a File
             try {
@@ -264,7 +255,6 @@ public class Main
             } catch (IOException e) {
                 System.out.println("Log Data Failed");
             }
-          
         /*
          * Flight Controls
          */
@@ -286,13 +276,17 @@ public class Main
             //     xpc.sendCTRL(pitchDown);
             // }
 
+
+
             if(valueAltitude[0] > 1000f && !switchTrack){
                 System.out.println("In switch");
                 takeoff = false;
                 cruise = true;
                 switchTrack = true;
             }
+            
 
+            //Control Profiles
             if(takeoff) {
                 float[] fullThrottle = {-998.0f, -998.0f, -998.0f, 1f};
                 if(!throttleFull) {
@@ -347,7 +341,7 @@ public class Main
 
 
             if(cruise) {
-                //Basic Autopilot For Roll (based on bank angle)
+            //Basic Autopilot For Roll (based on bank angle)
              float[] rollRight = {-998.0f, ctrl1[1] + 0.01f};
              float[] rollLeft = {-998.0f, ctrl1[1] - 0.01f};
              if(value2[0] < 0) {
@@ -357,7 +351,7 @@ public class Main
                 }
 
              } else if(value2[0] > 0) {
-                if(ctrl1[1] > -0.15f){
+                if(ctrl1[1] > -0.15f) {
                     xpc.sendCTRL(rollLeft);
                 }
              }
@@ -387,9 +381,6 @@ public class Main
                 break;
             }
         }
-
-
-
 
             // System.out.println("Setting controls");
             // float[] ctrl = new float[4];
@@ -422,13 +413,12 @@ public class Main
     // }
 }
 
-
 class axis extends JComponent {
 
     int xBound = 0;
     int yBound = 0;
 
-    axis(int currentX, int currentY){
+    axis(int currentX, int currentY) {
         xBound = currentX;
         yBound = currentY;
     }
@@ -448,7 +438,6 @@ class axis extends JComponent {
     public void setYBound(int newY){
         this.yBound = newY;
     }
-
 }
 
 
@@ -461,7 +450,10 @@ class yokePosition extends JComponent {
     float y = 0;
     int yBound = 0;
 
-    yokePosition(int currentX, int currentY){
+    int width = 50;
+    int height = 50;
+
+    yokePosition(int currentX, int currentY) {
         xBound = currentX;
         yBound = currentY;
     }
@@ -475,10 +467,11 @@ class yokePosition extends JComponent {
     {
         Graphics2D g2 = (Graphics2D) g;
         g2.setColor(Color.red);
-        int currX = (int)(x*xBound) + xBound/2;
-        int currY = (int)(y*yBound) + yBound/2;
+        int currX = (int)(x*xBound) + xBound/2 - width/2;
+        int currY = (int)(y*yBound) + yBound/2 - height/2;
         System.out.println("CurrX, CurrY: " + currX +", " + currY);
-        g2.drawOval(currX, currY, 50, 50);
+        // g2.drawOval(currX, currY, width, height);
+        g2.fillOval(currX, currY, width, height);
     }
 
     public void setX(float newX){
