@@ -26,6 +26,8 @@ public class Main
     {
         System.out.println("X-Plane Connect example program");
         System.out.println("Setting up simulation...");
+        JFrame frame = new JFrame();
+
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
             // Ensure connection established.
@@ -65,8 +67,8 @@ public class Main
 
         System.out.println("Trying something new!!");
 
-        JFrame frame = new JFrame();
-        frame.setPreferredSize(new Dimension(300,100));
+        
+        frame.setPreferredSize(new Dimension(1700,270));
         frame.setLayout(new GridLayout(1,2));
         frame.setVisible(true);
 
@@ -135,15 +137,17 @@ public class Main
         grid.setVisible(true);
         Integer layer1 = 0;
         Integer layer2 = 1;
-    //    grid.setLayout(new GridLayout(1,1));
-    grid.setLayout(new OverlayLayout(grid));
+        //    grid.setLayout(new GridLayout(1,1));
+        grid.setLayout(new OverlayLayout(grid));
 
         yokePosition yoke = new yokePosition(grid.getWidth(), grid.getHeight());
+        // yaw yaw = new yaw(grid.getWidth(), grid.getHeight());
         axis axis = new axis(grid.getWidth(), grid.getHeight());
         
         // grid.setLayer(axis, layer1);
         grid.add(axis);
         grid.add(yoke);
+        // grid.add(yaw);
         // grid.setLayer(yoke, layer2);
         
         Border greenLine = BorderFactory.createLineBorder(Color.green);
@@ -174,7 +178,7 @@ public class Main
 
 
         int aircraft = 0;
-        boolean takeoff = true;
+        boolean takeoff = false;
         boolean climb = false;
         boolean cruise = false;
         boolean throttleFull = false;
@@ -244,6 +248,13 @@ public class Main
             yoke.setX(ctrl1[1]);
             yoke.setY(ctrl1[0]);
             yoke.repaint();
+
+
+            // yaw.setYBound(grid.getHeight());
+            // yaw.setYBound(grid.getHeight());
+            // yaw.setX(ctrl1[2]);
+            // yaw.repaint();
+
             axis.setXBound(grid.getWidth());
             axis.setYBound(grid.getHeight());
             axis.repaint();
@@ -278,7 +289,7 @@ public class Main
 
 
 
-            if(valueAltitude[0] > 1000f && !switchTrack){
+            if(valueAltitude[0] > 1000f && !switchTrack && takeoff == true){
                 System.out.println("In switch");
                 takeoff = false;
                 cruise = true;
@@ -335,7 +346,6 @@ public class Main
                     if(ctrl1[2] > -0.5f){
                         xpc.sendCTRL(yawLeft); // YAW LEFT 
                     }
-
                 }
             }
 
@@ -394,6 +404,7 @@ public class Main
             // xpc.pauseSim(false);
             
             System.out.println("Example complete");
+            
         }
         catch (SocketException ex)
         {
@@ -402,6 +413,8 @@ public class Main
         catch (IOException ex)
         {
             System.out.println("Something went wrong with one of the commands. (Error message was '" + ex.getMessage() + "'.)");
+            frame.dispose();
+            
         }
         System.out.println("Exiting");
     }
@@ -439,6 +452,44 @@ class axis extends JComponent {
         this.yBound = newY;
     }
 }
+
+
+
+// class yaw extends JComponent {
+
+//     int xBound;
+//     int yBound;
+//     float x = 0;
+
+
+//     int currX = (int)(x*xBound) + xBound/2;
+
+//     yaw(int currentX, int currentY) {
+//         xBound = currentX;
+//         yBound = currentY;
+//     }
+
+//     public void paint(Graphics g)
+//     {
+//         Graphics2D g2 = (Graphics2D) g;
+//         g2.setColor(Color.blue);
+//         g2.drawLine(currX, 0, currX, yBound);
+//         g2.fillOval(currX, yBound/2, 20, 20);
+//     }
+
+//     public void setXBound(int newX){
+//         this.xBound = newX;
+//     }
+
+//     public void setYBound(int newY){
+//         this.yBound = newY;
+//     }
+
+//     public void setX(float newX){
+//         this.x = newX;
+//     }
+// }
+
 
 
 
