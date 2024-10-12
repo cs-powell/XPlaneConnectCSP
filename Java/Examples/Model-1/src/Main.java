@@ -10,6 +10,9 @@ import java.net.SocketException;
 import java.util.Arrays;
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.imageio.ImageIO;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 
 import java.awt.*;
 
@@ -125,42 +128,47 @@ public class Main
         display.add(four);
 
         JPanel visualizer = new JPanel();
-        visualizer.setLayout(new GridLayout(1,2));
+        visualizer.setLayout(new GridLayout(2,1));
 
 
         //Col 1 of Visualizer
-        JPanel grid = new JPanel();
-        grid.setMinimumSize(new Dimension(100,100));
+        JPanel yokeGrid = new JPanel();
+        yokeGrid.setMinimumSize(new Dimension(100,100));
         //grid.setOpaque(true);
         // grid.setLayout(null);
-        grid.setBackground(Color.black);
-        grid.setVisible(true);
+        yokeGrid.setBackground(Color.black);
+        yokeGrid.setVisible(true);
         Integer layer1 = 0;
         Integer layer2 = 1;
         //    grid.setLayout(new GridLayout(1,1));
-        grid.setLayout(new OverlayLayout(grid));
+        yokeGrid.setLayout(new OverlayLayout(yokeGrid));
 
-        yokePosition yoke = new yokePosition(grid.getWidth(), grid.getHeight());
+        yokePosition yoke = new yokePosition(yokeGrid.getWidth(), yokeGrid.getHeight());
         // yaw yaw = new yaw(grid.getWidth(), grid.getHeight());
-        axis axis = new axis(grid.getWidth(), grid.getHeight());
+        axis axis = new axis(yokeGrid.getWidth(), yokeGrid.getHeight());
         
         // grid.setLayer(axis, layer1);
-        grid.add(axis);
-        grid.add(yoke);
+        yokeGrid.add(axis);
+        yokeGrid.add(yoke);
         // grid.add(yaw);
         // grid.setLayer(yoke, layer2);
         
         Border greenLine = BorderFactory.createLineBorder(Color.green);
-        grid.setBorder(greenLine);
+        yokeGrid.setBorder(greenLine);
 
-        visualizer.add(grid);
+        visualizer.add(yokeGrid);
 
 
-        //Col 2 of Visualizer
+        //Row 2 of Visualizer
+        //Rudder Vizualizer
+        rudderPosition  rudderGrid = new rudderPosition(yokeGrid.getWidth(), 0);
+        visualizer.add(rudderGrid);
+
+
 
         
-        frame.add(display);
-        frame.add(visualizer);
+        frame.add(display); // Left Side
+        frame.add(visualizer); // Right Side
         frame.pack();
 
         // JLabel text = new JLabel("Hello");
@@ -178,7 +186,7 @@ public class Main
 
 
         int aircraft = 0;
-        boolean takeoff = false;
+        boolean takeoff = true;
         boolean climb = false;
         boolean cruise = false;
         boolean throttleFull = false;
@@ -243,20 +251,26 @@ public class Main
                 four.setForeground(Color.red);
             }
 
-            yoke.setXBound(grid.getWidth());
-            yoke.setYBound(grid.getHeight());
+            yoke.setXBound(yokeGrid.getWidth());
+            yoke.setYBound(yokeGrid.getHeight());
             yoke.setX(ctrl1[1]);
             yoke.setY(ctrl1[0]);
             yoke.repaint();
 
+            rudderGrid.setXBound(yokeGrid.getWidth());
+            rudderGrid.setYBound(yokeGrid.getHeight());
+            rudderGrid.setX(ctrl1[2]);
+            rudderGrid.repaint();
+
+            
 
             // yaw.setYBound(grid.getHeight());
             // yaw.setYBound(grid.getHeight());
             // yaw.setX(ctrl1[2]);
             // yaw.repaint();
 
-            axis.setXBound(grid.getWidth());
-            axis.setYBound(grid.getHeight());
+            axis.setXBound(yokeGrid.getWidth());
+            axis.setYBound(yokeGrid.getHeight());
             axis.repaint();
 
             //Writing Data to a File
@@ -495,6 +509,10 @@ class axis extends JComponent {
 
 
 
+
+
+
+
 class yokePosition extends JComponent {
     float x = 0;
     int xBound = 0;
@@ -509,20 +527,41 @@ class yokePosition extends JComponent {
         yBound = currentY;
     }
 
-
-    yokePosition(){
+    yokePosition() {
        
     }
   
     public void paint(Graphics g)
     {
         Graphics2D g2 = (Graphics2D) g;
+
+        try {
+            final BufferedImage image = ImageIO.read(new File("/Users/flyingtopher/Desktop/Code Citadel/School/2. Research/Fork Clone/XPlaneConnectCSP/Java/Examples/Model-1/content/Yoke Symbol.png"));
+            Image scaledImage = image.getScaledInstance(xBound, yBound, Image.SCALE_DEFAULT);
+            
+            g.drawImage(scaledImage, 0, 0, getFocusCycleRootAncestor());
+        } catch (IOException e){
+            System.out.print("Rudder Image Failed");
+        }
+
         g2.setColor(Color.red);
         int currX = (int)(x*xBound) + xBound/2 - width/2;
         int currY = (int)(y*yBound) + yBound/2 - height/2;
         System.out.println("CurrX, CurrY: " + currX +", " + currY);
         // g2.drawOval(currX, currY, width, height);
+       
         g2.fillOval(currX, currY, width, height);
+        g.setColor(Color.green);
+        int height = g.getFontMetrics().getHeight();
+        g.drawString("Nose Down", (xBound/2) + 5, height);
+        g.drawString("Nose Up", (xBound/2) + 5, yBound - height/2);
+        g.drawString("Roll Left",0, yBound/2);
+        int width = g.getFontMetrics().stringWidth("Roll Right");
+        g.drawString("Roll Right", xBound - width, yBound/2);
+
+
+
+        
     }
 
     public void setX(float newX){
@@ -539,4 +578,56 @@ class yokePosition extends JComponent {
     public void setYBound(int newY){
         this.yBound = newY;
     }
+}
+
+
+class rudderPosition extends JComponent {
+
+    int xBound = 0;
+    int yBound = 0;
+
+    float rudderTravel = 0;
+
+    rudderPosition(int currentXBound, int currentYBound) {
+       xBound = currentXBound;
+       yBound = currentYBound;
+    }
+  
+    public void paint(Graphics g) {
+        Graphics2D g2 = (Graphics2D) g;
+        int spacer = 10;
+        g.setColor(Color.gray);
+        g2.fillRect(0, spacer, xBound, yBound - spacer);
+
+        g2.setColor(Color.red);
+        int width = (int) (xBound/2 * rudderTravel);
+        //g2.drawRect(xBound/2, 0 +spacer, width, yBound);
+        g2.fillRect(xBound/2, 0 + spacer, width, yBound);
+        
+        g.drawString("Yaw Left",0, yBound/2);
+        int textWidth = g.getFontMetrics().stringWidth("Roll Right");
+        g.drawString("Yaw Right", xBound - textWidth, yBound/2);
+        try {
+            final BufferedImage image = ImageIO.read(new File("/Users/flyingtopher/Desktop/Code Citadel/School/2. Research/Fork Clone/XPlaneConnectCSP/Java/Examples/Model-1/content/Rudder Pedals.png"));
+            Image scaledImage = image.getScaledInstance(xBound, yBound, Image.SCALE_DEFAULT);
+            g.drawImage(scaledImage, 0, 0, getFocusCycleRootAncestor());
+        } catch (IOException e){
+            System.out.print("Rudder Image Failed");
+        }
+        
+        
+    }
+
+    public void setX(float newX) {
+        this.rudderTravel = newX;
+    }
+
+    public void setXBound(int newX) {
+        this.xBound = newX;
+    }
+
+    public void setYBound(int newY) {
+        this.yBound = newY;
+    }
+
 }
