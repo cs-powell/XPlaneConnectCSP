@@ -7,17 +7,19 @@ public class Motor extends Action {
     float[] control;
     MotorType motorType;
 
-    public Motor() {
+    public Motor(MotorType motorType) {
         super(ActionType.MOTOR,1000);
+        this.motorType = motorType;
     }
 
-public Motor(int delay) {
-    super(ActionType.MOTOR,delay);
-}
+// public Motor(int delay) {
+//     super(ActionType.MOTOR,delay);
+// }
 
 
-public Motor(int delay, String target) {
+public Motor(MotorType motorType,int delay, String target) {
     super(ActionType.MOTOR,delay,target);
+    this.motorType = motorType;
 }
 
 

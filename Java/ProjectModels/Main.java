@@ -41,8 +41,8 @@ public class Main {
             // Ensure connection established.
         m = new Model(xpc);
         m.activateModel();
-        m.createAction(ActionType.VISION, 0, "sim/cockpit2/gauges/indicators/airspeed_kts_pilot");
-        m.createAction(ActionType.MOTOR, 0, null);
+        m.createAction(ActionType.VISION, null, 0, "sim/cockpit2/gauges/indicators/airspeed_kts_pilot");
+        m.createAction(ActionType.MOTOR, MotorType.PITCHUP, 0, null);
         // m.push(b);
         // m.push(d);
         m.printModelQueue();
@@ -50,17 +50,21 @@ public class Main {
             while(m.isActive() && !m.isEmpty()) {
                 float[] array = m.next();
                 if(array != null) {
-                    System.out.println(array[0]);
-                    if(array[0] > 80.0f) {
-                        m.push(d);
-                    }
+                    // System.out.println(array[0]);
+                    // if(array[0] > 80.0f) {
+                    //     m.push(d);
+                    // }
                 } else {
                     // System.out.println("no dice");
                     // System.out.println(xpc.getDREF(null)");
                 }
-
-                // m.createAction(ActionType.MOTOR, 0, null);
-                m.printModelQueue();
+                if(m.getModelQueueLength() < 5){
+                    m.createAction(ActionType.VISION, null, 0, "sim/cockpit2/gauges/indicators/airspeed_kts_pilot");
+                    m.createAction(ActionType.MOTOR, MotorType.PITCHUP, 0, null);
+                    m.createAction(ActionType.MOTOR, MotorType.PITCHDOWN, 0, null);
+                }
+                
+                // m.printModelQueue();
             }
         }
         catch (SocketException ex)

@@ -67,7 +67,7 @@ public class Model {
         return q.queueLength();
     }
     
-    public void createAction(ActionType actionType,int delay,String target) {
+    public void createAction(ActionType actionType, MotorType motorType, int delay,String target) {
         Action newAction = null;
         switch(actionType) {
             case VISION:
@@ -75,7 +75,7 @@ public class Model {
                 this.push(newAction);
                 break;
             case MOTOR:
-                newAction = new Motor(delay,target);
+                newAction = new Motor(motorType,delay,target);
                 this.push(newAction);
                 break;
 
@@ -130,24 +130,35 @@ public class Model {
         MotorType motorType = tempM.getMotorType();
         float[] currentControls = null;
         try {
+            currentControls = xpc.getCTRL(0);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        try {
             
         switch(motorType){
             case PITCHUP:
                 float[] pitchUp = {currentControls[0] + 0.01f};
-                    if(storedVision[0] > 90) {
-                            if(currentControls[0] < 0.1f) {
+                    if(storedVision[0] > 80) {
+                            if(currentControls[0] < 0.2f) {
+                                System.out.println("Pitching Up");
                                 xpc.sendCTRL(pitchUp);
                             }
                     }
-                    System.out.println("Pitching Up");
+                    
+                    break;
             case PITCHDOWN:
                 float[] pitchDown = {currentControls[0] - 0.01f};
-                    if(storedVision[0] < 50) {
-                            if(currentControls[0] > 0.1f) {
+                    if(storedVision[0] < 80) {
+                            if(currentControls[0] > -0.2f) {
+                                // System.out.println("Sending Pitch Down");
+                                System.out.println("Pitching Down");
                                 xpc.sendCTRL(pitchDown);
                             }
                     }
-                    System.out.println("Pitching Down");
+                    
+                    break;
         }
 
     } catch (IOException e) {
