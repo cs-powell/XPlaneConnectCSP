@@ -1,4 +1,4 @@
-package ProjectModels.CognitiveModel;
+package ModelFiles;
 public class Process {
 
 

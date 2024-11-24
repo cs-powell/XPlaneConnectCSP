@@ -23,11 +23,7 @@
 //    PRIOR RECIPIENT, TO THE EXTENT PERMITTED BY LAW. RECIPIENT'S SOLE REMEDY FOR ANY SUCH MATTER
 //    SHALL BE THE IMMEDIATE, UNILATERAL TERMINATION OF THIS AGREEMENT.
 
-package ProjectModels.CognitiveModel;
-
-import ProjectModels.CognitiveModel.XPCdependencies.*;
-import src.discovery.ViewType;
-import src.discovery.WaypointOp;
+package ModelFiles;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -37,6 +33,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+
+import ModelFiles.XPCdependencies.*;
 
 /**
  * Represents a client that can connect to and interact with the X-Plane Connect plugin.

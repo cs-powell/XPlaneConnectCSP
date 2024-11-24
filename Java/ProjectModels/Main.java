@@ -1,4 +1,4 @@
-package ProjectModels.src;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -13,7 +13,14 @@ import javax.swing.OverlayLayout;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
-import ProjectModels.CognitiveModel.*;
+import ModelFiles.*;
+import ModelFiles.Action;
+import ModelFiles.ActionType;
+import ModelFiles.Delay;
+import ModelFiles.MindQueue;
+import ModelFiles.Model;
+import ModelFiles.Vision;
+import ModelFiles.XPlaneConnect;
 
 public class Main {
 
@@ -28,34 +35,33 @@ public class Main {
         System.out.println(q2.pop());
 
         //Using actions
-        try(XPlaneConnect xpc = new XPlaneConnect())
-        {
-            m.createAction(0, 0, null);
+        try(XPlaneConnect xpc = new XPlaneConnect()) {
         Action b = new Vision(10,"sim/cockpit2/gauges/indicators/airspeed_kts_pilot");
         Action d = new Delay(20);
             // Ensure connection established.
         m = new Model(xpc);
         m.activateModel();
-        m.push(b);
-        m.push(d);
+        m.createAction(ActionType.VISION, 0, "sim/cockpit2/gauges/indicators/airspeed_kts_pilot");
+        m.createAction(ActionType.MOTOR, 0, null);
+        // m.push(b);
+        // m.push(d);
         m.printModelQueue();
         // m.deactivateModel();
-        while(m.isActive() && !m.isEmpty()) {
-            float[] array = m.next();
-            if(array != null){
-                // System.out.println(array[0]);
-                if(array[0] > 80.0f){
-                    m.push(d);
+            while(m.isActive() && !m.isEmpty()) {
+                float[] array = m.next();
+                if(array != null) {
+                    System.out.println(array[0]);
+                    if(array[0] > 80.0f) {
+                        m.push(d);
+                    }
+                } else {
+                    // System.out.println("no dice");
+                    // System.out.println(xpc.getDREF(null)");
                 }
-            } else {
-                // System.out.println("no dice");
-                // System.out.println(xpc.getDREF(null)");
+
+                // m.createAction(ActionType.MOTOR, 0, null);
+                m.printModelQueue();
             }
-            if(m.getModelQueueLength() < 5){
-                m.push(b);
-            }
-            m.printModelQueue();
-        }
         }
         catch (SocketException ex)
         {

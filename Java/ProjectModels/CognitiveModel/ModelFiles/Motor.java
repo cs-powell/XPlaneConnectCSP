@@ -1,10 +1,11 @@
-package ProjectModels.CognitiveModel;
+package ModelFiles;
 import java.io.IOException;
 
 
 public class Motor extends Action {
 
     float[] control;
+    MotorType motorType;
 
     public Motor() {
         super(ActionType.MOTOR,1000);
@@ -24,6 +25,11 @@ public void createMotorControl(){ // TODO: Maybe takes in a formatted set of vis
     control = null;
 }
 
+
+public MotorType getMotorType(){
+    return motorType;
+}
+
 public void sendMotorControl(XPlaneConnect xpc) {
 
     if(control != null) {
@@ -35,5 +41,6 @@ public void sendMotorControl(XPlaneConnect xpc) {
         }
     }
 }
+
 
 }

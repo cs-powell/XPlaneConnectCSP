@@ -1,4 +1,4 @@
-package ProjectModels.CognitiveModel;
+package ModelFiles;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

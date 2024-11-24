@@ -1,4 +1,4 @@
-package ProjectModels.CognitiveModel.XPCdependencies;
+package ModelFiles.XPCdependencies;
 
 import java.net.InetAddress;
 

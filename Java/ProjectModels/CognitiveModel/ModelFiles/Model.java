@@ -1,12 +1,15 @@
-package ProjectModels.CognitiveModel;
+package ModelFiles;
 import java.io.IOException;
+
+import ModelFiles.ActionType;
+import ModelFiles.MotorType;
 
 public class Model {
 
     private MindQueue q; //Queue for actions
     boolean modelActive; // On/Off Switch for the model execution
     XPlaneConnect xpc; //Allows connection to the simulator
-
+    float[] storedVision;
 
     //Constructors
     public Model() {
@@ -64,19 +67,22 @@ public class Model {
         return q.queueLength();
     }
     
-    public void createAction(int actionType,int delay,String target) {
+    public void createAction(ActionType actionType,int delay,String target) {
         Action newAction = null;
-        switch(actionType){
-            case 1:
+        switch(actionType) {
+            case VISION:
                 newAction = new Vision(delay,target);
                 this.push(newAction);
-            case 2:
+                break;
+            case MOTOR:
                 newAction = new Motor(delay,target);
                 this.push(newAction);
+                break;
 
-            case 3:
+            case DELAY:
                 newAction = new Delay(delay);
                 this.push(newAction);
+                break;
        }
     }
 
@@ -112,14 +118,42 @@ public class Model {
          String dref = tempV.getTarget();
          try {
               returnArray = xpc.getDREF(dref);
+              storedVision = returnArray.clone();
+            //   System.out.println(returnArray[0]);
          } catch (IOException e) {
             
          }
     }
 
-    private void handleMotorAction(Action temp){
+    private void handleMotorAction(Action temp) {
         Motor tempM = (Motor) temp;
-        tempM.getDelay();
+        MotorType motorType = tempM.getMotorType();
+        float[] currentControls = null;
+        try {
+            
+        switch(motorType){
+            case PITCHUP:
+                float[] pitchUp = {currentControls[0] + 0.01f};
+                    if(storedVision[0] > 90) {
+                            if(currentControls[0] < 0.1f) {
+                                xpc.sendCTRL(pitchUp);
+                            }
+                    }
+                    System.out.println("Pitching Up");
+            case PITCHDOWN:
+                float[] pitchDown = {currentControls[0] - 0.01f};
+                    if(storedVision[0] < 50) {
+                            if(currentControls[0] > 0.1f) {
+                                xpc.sendCTRL(pitchDown);
+                            }
+                    }
+                    System.out.println("Pitching Down");
+        }
+
+    } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    }
     }
 
     private void handleDelayAction(Action temp){
