@@ -22,23 +22,33 @@
 //    HARMLESS THE UNITED STATES GOVERNMENT, ITS CONTRACTORS AND SUBCONTRACTORS, AS WELL AS ANY
 //    PRIOR RECIPIENT, TO THE EXTENT PERMITTED BY LAW. RECIPIENT'S SOLE REMEDY FOR ANY SUCH MATTER
 //    SHALL BE THE IMMEDIATE, UNILATERAL TERMINATION OF THIS AGREEMENT.
-package gov.nasa.xpc;
+package src.discovery;
 
 /**
- * Represents operations that can be performed by the WYPT command.
+ * Represents a camera view in X-Plane
  *
  * @author  Jason Watkins
- * @version 1.0
- * @since   2015-04-09
+ * @version 1.1
+ * @since   2015-05-08
  */
-public enum WaypointOp
+public enum ViewType
 {
-    Add(1),
-    Del(2),
-    Clr(3);
+    Forwards(73),
+    Down(74),
+    Left(75),
+    Right(76),
+    Back(77),
+    Tower(78),
+    Runway(79),
+    Chase(80),
+    Follow(81),
+    FollowWithPanel(82),
+    Spot(83),
+    FullscreenWithHud(84),
+    FullscreenNoHud(85);
 
     private final int value;
-    private WaypointOp(int value)
+    private ViewType(int value)
     {
         this.value = value;
     }

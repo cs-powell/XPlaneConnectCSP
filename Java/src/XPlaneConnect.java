@@ -26,6 +26,8 @@
 package gov.nasa.xpc;
 
 import gov.nasa.xpc.discovery.Beacon;
+import src.discovery.ViewType;
+import src.discovery.WaypointOp;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

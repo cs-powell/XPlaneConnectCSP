@@ -23,9 +23,11 @@
 //    PRIOR RECIPIENT, TO THE EXTENT PERMITTED BY LAW. RECIPIENT'S SOLE REMEDY FOR ANY SUCH MATTER
 //    SHALL BE THE IMMEDIATE, UNILATERAL TERMINATION OF THIS AGREEMENT.
 
-// package gov.nasa.xpc;
+package ProjectModels.CognitiveModel;
 
-// import gov.nasa.xpc.discovery.Beacon;
+import ProjectModels.CognitiveModel.XPCdependencies.*;
+import src.discovery.ViewType;
+import src.discovery.WaypointOp;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -45,7 +47,7 @@ import java.util.Arrays;
  */
 public class XPlaneConnect implements AutoCloseable
 {
-    private static int clientNum;
+    //private static int clientNum;
     private DatagramSocket socket;
     private InetAddress xplaneAddr;
     private int xplanePort;
