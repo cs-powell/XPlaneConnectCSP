@@ -1,4 +1,5 @@
 package ModelFiles;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -14,5 +15,5 @@ public class Tests {
         m.push(a);
         assertEquals(i, m.pop());
     }
-    
+
 }

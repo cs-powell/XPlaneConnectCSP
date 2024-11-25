@@ -1,6 +1,6 @@
 package ModelFiles;
 
-public enum MotorType{
-        PITCHUP,
+public enum MotorType {
+    PITCHUP,
     PITCHDOWN
 }

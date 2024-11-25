@@ -1,9 +1,7 @@
 package ModelFiles;
 
-
-public enum ActionType{
+public enum ActionType {
     VISION,
     MOTOR,
     DELAY,
 }
-
