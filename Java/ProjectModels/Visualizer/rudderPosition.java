@@ -1,29 +1,10 @@
 package Visualizer;
 
-import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 
 
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.OverlayLayout;
-import javax.swing.SwingConstants;
-import javax.swing.border.Border;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.net.SocketException;
-import java.util.Arrays;
-import javax.swing.*;
-import javax.swing.border.Border;
-import javax.imageio.ImageIO;
 import java.awt.Graphics;
-import java.awt.image.BufferedImage;
 import java.awt.*;
-
-import ModelFiles.*;
 
 public class rudderPosition extends JComponent {
 

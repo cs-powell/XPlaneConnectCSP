@@ -1,17 +1,7 @@
 package Visualizer;
 
 import javax.swing.border.Border;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.net.SocketException;
-import java.util.Arrays;
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.imageio.ImageIO;
-
-import java.awt.image.BufferedImage;
 import java.awt.*;
 
 import ModelFiles.*;
@@ -101,8 +91,6 @@ public class visualizer {
         // grid.setLayout(null);
         yokeGrid.setBackground(Color.black);
         yokeGrid.setVisible(true);
-        Integer layer1 = 0;
-        Integer layer2 = 1;
         //    grid.setLayout(new GridLayout(1,1));
         yokeGrid.setLayout(new OverlayLayout(yokeGrid));
 

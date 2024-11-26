@@ -154,7 +154,12 @@ public class Model {
                             xpc.sendCTRL(pitchDown);
                         }
                     }
+                    break;
+                case THROTTLEUP:
+                    break;
 
+                case THROTTLEDOWN:
+                    
                     break;
             }
         } catch (IOException e) {

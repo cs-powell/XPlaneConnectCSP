@@ -52,6 +52,7 @@ public class XPlaneConnectDiscovery implements AutoCloseable {
 
     }
 
+    @SuppressWarnings("deprecation") // Added custom
     public void start() throws IOException {
         System.out.println("Starting XPlane Connect discovery");
         socket = new MulticastSocket(mPort);
@@ -70,7 +71,6 @@ public class XPlaneConnectDiscovery implements AutoCloseable {
                 System.err.println("Received packet on discovery group but could not parse it: " + ex);
             }
         }
-
         close();
         System.out.println("XPlane Connect discovery ended");
     }
