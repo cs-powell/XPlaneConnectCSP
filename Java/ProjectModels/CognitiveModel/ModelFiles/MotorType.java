@@ -2,5 +2,7 @@ package ModelFiles;
 
 public enum MotorType {
     PITCHUP,
-    PITCHDOWN
+    PITCHDOWN,
+    THROTTLEUP,
+    THROTTLEDOWN
 }

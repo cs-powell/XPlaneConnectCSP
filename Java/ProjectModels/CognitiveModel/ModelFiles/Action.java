@@ -32,5 +32,4 @@ public abstract class Action {
     public String getTarget() {
         return targetDREF;
     }
-
 }

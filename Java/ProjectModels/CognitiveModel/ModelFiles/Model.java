@@ -78,7 +78,6 @@ public class Model {
                 newAction = new Motor(motorType, delay, target);
                 this.push(newAction);
                 break;
-
             case DELAY:
                 newAction = new Delay(delay);
                 this.push(newAction);
@@ -108,7 +107,6 @@ public class Model {
         }
         // q.push(temp);
         return returnArray;
-
     }
 
     /* Next Helpers */
@@ -137,7 +135,6 @@ public class Model {
         }
 
         try {
-
             switch (motorType) {
                 case PITCHUP:
                     float[] pitchUp = { currentControls[0] + 0.01f };
@@ -147,7 +144,6 @@ public class Model {
                             xpc.sendCTRL(pitchUp);
                         }
                     }
-
                     break;
                 case PITCHDOWN:
                     float[] pitchDown = { currentControls[0] - 0.01f };
@@ -161,7 +157,6 @@ public class Model {
 
                     break;
             }
-
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -182,4 +177,15 @@ public class Model {
         }
     }
 
+
+    public float[] getCurrentControls(){
+        float [] returnArray = null;
+        try {
+            returnArray = xpc.getCTRL(0);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return returnArray;
+    }
 }
