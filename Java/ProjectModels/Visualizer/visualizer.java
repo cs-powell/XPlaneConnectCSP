@@ -3,29 +3,42 @@ package Visualizer;
 import javax.swing.border.Border;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import ModelFiles.*;
 
 public class visualizer {
 
     JFrame frame = new JFrame();
+    JPanel frameBottom = new JPanel();
     JPanel display = new JPanel();
     JPanel visualizer = new JPanel();
     JPanel yokeGrid = new JPanel();
     axis axis = new axis(0,0);
     rudderPosition  rudderGrid = new rudderPosition(yokeGrid.getWidth(), 0);
     yokePosition yoke = new yokePosition(yokeGrid.getWidth(), yokeGrid.getHeight());
+    JLabel one = new JLabel();
+    JLabel two = new JLabel();
+    JLabel three = new JLabel();
+    JLabel four = new JLabel();
+    Model m;
 
 
 
     public visualizer(Model m){
-
+        this.m = m;
     }
 
 
     public void initializeDisplay() {
+        try { 
+            UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel"); 
+        } catch(Exception ignored){}
+        
         frame.setPreferredSize(new Dimension(1700,270));
-        frame.setLayout(new GridLayout(1,2));
+        frame.setLayout(new BorderLayout());
+        frameBottom.setLayout(new GridLayout(1,2));
         frame.setVisible(true);
 
        
@@ -50,19 +63,19 @@ public class visualizer {
         titleFour.setFont(fontTitles);
         titleFour.setHorizontalAlignment(SwingConstants.CENTER);
         titleFour.setVerticalAlignment(SwingConstants.BOTTOM);
-        JLabel one = new JLabel();
+        one = new JLabel();
         one.setFont(fontData);
         one.setHorizontalAlignment(SwingConstants.CENTER);
         one.setVerticalAlignment(SwingConstants.TOP);
-        JLabel two = new JLabel();
+        two = new JLabel();
         two.setFont(fontData);
         two.setHorizontalAlignment(SwingConstants.CENTER);
         two.setVerticalAlignment(SwingConstants.TOP);
-        JLabel three = new JLabel();
+        three = new JLabel();
         three.setFont(fontData);
         three.setHorizontalAlignment(SwingConstants.CENTER);
         three.setVerticalAlignment(SwingConstants.TOP);
-        JLabel four = new JLabel();
+        four = new JLabel();
         four.setFont(fontData);
         four.setHorizontalAlignment(SwingConstants.CENTER);
         four.setVerticalAlignment(SwingConstants.TOP);
@@ -112,13 +125,86 @@ public class visualizer {
         rudderGrid = new rudderPosition(yokeGrid.getWidth(), 0);
         visualizer.add(rudderGrid);
 
-        frame.add(display); // Left Side
-        frame.add(visualizer); // Right Side
+        JToolBar tool = new JToolBar("Toolbar");
+        JButton b1 = new JButton("Data Log Toggle");
+        ActionListener press = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(m.logPermission() == false){
+                    m.startLog();
+                    JOptionPane.showMessageDialog(frame,"Data Logging Enabled");
+                    tool.setBackground(Color.green);
+                } else {
+                    m.stopLog();
+                    JOptionPane.showMessageDialog(frame,"Data Logging Disabled");
+                    tool.setBackground(Color.white);
+                }
+                
+            }
+            
+        };
+        b1.addActionListener(press);
+        JButton b2 = new JButton("button 2");
+        tool.setBackground(Color.red);
+        tool.setOrientation(1);
+        tool.add(b1);
+        tool.add(b2);
+        frame.add(tool,BorderLayout.WEST);
+
+
+
+        JPanel buttonBar = new JPanel();
+        buttonBar.setLayout(new GridLayout(2,1));
+        JToolBar tool2 = new JToolBar("Toolbar");
+        JButton b3 = new JButton("button 2");
+        JButton b4 = new JButton("button 2");
+        tool2.add(b3);
+        tool2.add(b4);
+
+        JToolBar tool3 = new JToolBar("Toolbar");
+        JButton b5 = new JButton("button 3");
+        JButton b6 = new JButton("button 3");
+        tool3.add(b5);
+        tool3.add(b6);
+        buttonBar.add(tool2);
+        buttonBar.add(tool3);
+        
+
+        
+        frameBottom.add(display); // Left Side
+        frameBottom.add(visualizer); // Right Side
+        frame.add(frameBottom,BorderLayout.CENTER);
+        frame.add(buttonBar, BorderLayout.SOUTH);
         frame.pack();
     }
 
 
     public void updateVisualizer(float[] ctrl1){
+        one.setText(String.valueOf(ctrl1[0]));
+            if(ctrl1[0] >= 0 ) {
+                one.setForeground(Color.green);
+            } else {
+                one.setForeground(Color.red);
+            }
+            two.setText(String.valueOf(ctrl1[1]));
+            if(ctrl1[1] >= 0 ) {
+                two.setForeground(Color.green);
+            } else {
+                two.setForeground(Color.red);
+            }
+            three.setText(String.valueOf(ctrl1[2]));
+            if(ctrl1[2] >= 0 ) {
+                three.setForeground(Color.green);
+            } else {
+                three.setForeground(Color.red);
+            }
+            four.setText(String.valueOf(ctrl1[3]));
+            if(ctrl1[3] >= 0 ) {
+                four.setForeground(Color.green);
+            } else {
+                four.setForeground(Color.red);
+            }
+
         yoke.setXBound(yokeGrid.getWidth());
             yoke.setYBound(yokeGrid.getHeight());
             yoke.setX(ctrl1[1]);

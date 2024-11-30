@@ -205,7 +205,6 @@ public class Main
         BufferedWriter bw = new BufferedWriter(fw);
 
         while(true) {
-
             //THE GETTERS
             double[] posi1 = xpc.getPOSI(aircraft); // FIXME: change this to 64-bit double
             float[] ctrl1 = xpc.getCTRL(aircraft);
@@ -221,7 +220,6 @@ public class Main
          */
             // System.out.format("\r[Elevator: %2f] [Roll: %2f] [Yaw: %2f] ---- [Throttle:%2f] ---- [Flaps: %2f] -- [Data Ref: %2f] -- [T/O: %b ][Cruise: %b ]",
             //          ctrl1[0], ctrl1[1], ctrl1[2], ctrl1[3], ctrl1[5], valueAltitude[0], takeoff, cruise);
-
             String log = String.format("[Elevator: %2f] [Roll: %2f] [Yaw: %2f] [Throttle:%2f] [Flaps: %2f] [Data Ref: %2f] [T/O: %b ][Cruise: %b ]",
                      ctrl1[0], ctrl1[1], ctrl1[2], ctrl1[3], ctrl1[5], valueAltitude[0], takeoff, cruise);
 

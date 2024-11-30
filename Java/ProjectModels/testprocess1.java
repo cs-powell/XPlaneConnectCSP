@@ -30,6 +30,7 @@ public class testprocess1 extends testprocess {
                     // m.createAction(ActionType.MOTOR, MotorType.PITCHDOWN, 0, null);
                 }
                 // m.printModelQueue();
+                m.logData();
                 vis1.updateVisualizer(m.getCurrentControls());
             }
         } catch (SocketException ex) {

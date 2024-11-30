@@ -1,5 +1,8 @@
 package ModelFiles;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 // import ModelFiles.ActionType;
@@ -11,17 +14,22 @@ public class Model {
     boolean modelActive; // On/Off Switch for the model execution
     XPlaneConnect xpc; // Allows connection to the simulator
     float[] storedVision;
+    boolean logCreated;
+    boolean logAllowed;
+    File dataLogFile = null;
 
     // Constructors
     public Model() {
         q = new MindQueue();
         modelActive = false;
+        logCreated = false;
     }
 
     public Model(XPlaneConnect xpc) {
         q = new MindQueue();
         modelActive = false;
         this.xpc = xpc;
+        logCreated = false;
     }
 
     /* Getters */
@@ -183,14 +191,58 @@ public class Model {
     }
 
 
-    public float[] getCurrentControls(){
+    public float[] getCurrentControls() throws IOException{
         float [] returnArray = null;
         try {
             returnArray = xpc.getCTRL(0);
         } catch (IOException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw e;
         }
         return returnArray;
+    }
+
+
+    public void startLog(){
+        logAllowed = true;
+    }
+
+    public void stopLog(){
+        logAllowed = false;
+    }
+
+    public boolean logPermission(){
+        return logAllowed;
+    }
+
+
+
+    public void logData() {
+        if(logAllowed) {
+            logProcess();
+        }
+    }
+
+
+    private void logProcess(){
+        if(!logCreated) {
+            dataLogFile = new File("./dataLog/" + java.time.LocalDateTime.now());
+            logCreated = true;
+        }
+
+            String log = null;
+            try {
+                float[] ctrl1 = this.getCurrentControls();
+                log = String.format("[Elevator: %2f] [Roll: %2f] [Yaw: %2f] [Throttle:%2f] [Flaps: %2f] \n",
+                ctrl1[0], ctrl1[1], ctrl1[2], ctrl1[3], ctrl1[5]);
+                FileWriter fw = new FileWriter(dataLogFile, true);
+                BufferedWriter br = new BufferedWriter(fw);
+                br.write(log);
+                br.flush();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                System.out.println("No data to log");
+            }
     }
 }
