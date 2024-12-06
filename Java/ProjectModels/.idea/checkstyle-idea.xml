@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CheckStyle-IDEA" serialisationVersion="2">
+    <checkstyleVersion>8.23</checkstyleVersion>
+    <scanScope>JavaOnlyWithTests</scanScope>
+    <option name="activeLocationIds">
+      <option value="3d842018-59d5-4006-af8c-48e9162a546a" />
+    </option>
+    <option name="locations">
+      <list>
+        <ConfigurationLocation id="bundled-sun-checks" type="BUNDLED" scope="All" description="Sun Checks">(bundled)</ConfigurationLocation>
+        <ConfigurationLocation id="bundled-google-checks" type="BUNDLED" scope="All" description="Google Checks">(bundled)</ConfigurationLocation>
+        <ConfigurationLocation id="3d842018-59d5-4006-af8c-48e9162a546a" type="HTTP_URL" scope="All" description="CIS1210">
+          https://gist.github.com/superfashi/b6d24924830f45fae5786cdcee02f049/raw/520f9d293217d731e47bdc4fa0a8b2a529a4e50c/config.xml
+          <option name="properties">
+            <map>
+              <entry key="filter" value="https://gist.github.com/superfashi/b6d24924830f45fae5786cdcee02f049/raw/520f9d293217d731e47bdc4fa0a8b2a529a4e50c/suppressions.xml" />
+            </map>
+          </option>
+        </ConfigurationLocation>
+      </list>
+    </option>
+  </component>
+</project>
