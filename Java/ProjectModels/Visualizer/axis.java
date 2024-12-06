@@ -2,8 +2,6 @@ package Visualizer;
 
 
 import javax.swing.JComponent;
-
-
 import java.awt.Graphics;
 import java.awt.*;
 

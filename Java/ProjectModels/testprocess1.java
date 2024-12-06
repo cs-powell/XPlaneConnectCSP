@@ -1,7 +1,7 @@
 import java.io.IOException;
 import java.net.SocketException;
 
-import ModelFiles.*;
+import CognitiveModel.ModelFiles.*;
 import Visualizer.visualizer;
 
 public class testprocess1 extends testprocess {

@@ -1,4 +1,4 @@
-package ModelFiles;
+package CognitiveModel.ModelFiles;
 
 public abstract class Action {
 

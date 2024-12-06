@@ -23,7 +23,7 @@
 //    PRIOR RECIPIENT, TO THE EXTENT PERMITTED BY LAW. RECIPIENT'S SOLE REMEDY FOR ANY SUCH MATTER
 //    SHALL BE THE IMMEDIATE, UNILATERAL TERMINATION OF THIS AGREEMENT.
 
-package ModelFiles;
+package CognitiveModel.ModelFiles;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -34,7 +34,7 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-import ModelFiles.XPCdependencies.*;
+import CognitiveModel.ModelFiles.XPCdependencies.*;
 
 /**
  * Represents a client that can connect to and interact with the X-Plane Connect

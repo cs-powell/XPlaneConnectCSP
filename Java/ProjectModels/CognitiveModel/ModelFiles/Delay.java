@@ -1,4 +1,4 @@
-package ModelFiles;
+package CognitiveModel.ModelFiles;
 // package ProjectModels.CognitiveModel;
 
 public class Delay extends Action {

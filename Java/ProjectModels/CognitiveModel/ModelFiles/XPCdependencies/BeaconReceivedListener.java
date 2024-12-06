@@ -1,4 +1,4 @@
-package ModelFiles.XPCdependencies;
+package CognitiveModel.ModelFiles.XPCdependencies;
 
 public interface BeaconReceivedListener {
 

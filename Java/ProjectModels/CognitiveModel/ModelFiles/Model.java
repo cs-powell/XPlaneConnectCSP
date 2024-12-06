@@ -1,4 +1,4 @@
-package ModelFiles;
+package CognitiveModel.ModelFiles;
 
 import java.io.BufferedWriter;
 import java.io.File;

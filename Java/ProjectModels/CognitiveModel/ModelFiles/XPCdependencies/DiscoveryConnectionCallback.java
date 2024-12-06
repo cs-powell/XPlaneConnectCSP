@@ -1,6 +1,6 @@
-package ModelFiles.XPCdependencies;
+package CognitiveModel.ModelFiles.XPCdependencies;
 
-import ModelFiles.*;
+import CognitiveModel.ModelFiles.*;
 
 public interface DiscoveryConnectionCallback {
 

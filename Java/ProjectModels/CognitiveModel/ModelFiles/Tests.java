@@ -1,4 +1,4 @@
-package ModelFiles;
+package CognitiveModel.ModelFiles;
 
 import org.junit.Test;
 

@@ -1,6 +1,6 @@
-import ModelFiles.XPlaneConnect;
+import CognitiveModel.ModelFiles.XPlaneConnect;
 import Visualizer.visualizer;
-import ModelFiles.*;
+import CognitiveModel.ModelFiles.*;
 
 public class testprocess2 extends testprocess {
 
