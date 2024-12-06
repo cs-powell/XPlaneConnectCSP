@@ -22,6 +22,7 @@ public class visualizer {
     JLabel two = new JLabel();
     JLabel three = new JLabel();
     JLabel four = new JLabel();
+    
     Model m;
 
 
@@ -29,7 +30,6 @@ public class visualizer {
     public visualizer(Model m){
         this.m = m;
     }
-
 
     public void initializeDisplay() {
         try { 
@@ -126,7 +126,7 @@ public class visualizer {
         visualizer.add(rudderGrid);
 
         JToolBar tool = new JToolBar("Toolbar");
-        JButton b1 = new JButton("Data Log Toggle");
+        JButton b1 = new JButton("Data Log Disabled");
         ActionListener press = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -134,10 +134,12 @@ public class visualizer {
                     m.startLog();
                     JOptionPane.showMessageDialog(frame,"Data Logging Enabled");
                     tool.setBackground(Color.green);
+                    b1.setText("Data Log Enabled");
                 } else {
                     m.stopLog();
                     JOptionPane.showMessageDialog(frame,"Data Logging Disabled");
                     tool.setBackground(Color.white);
+                    b1.setText("Data Log Disabled");
                 }
                 
             }

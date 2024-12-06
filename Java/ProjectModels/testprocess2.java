@@ -1,4 +1,5 @@
 import ModelFiles.XPlaneConnect;
+import Visualizer.visualizer;
 import ModelFiles.*;
 
 public class testprocess2 extends testprocess {
@@ -7,9 +8,5 @@ public class testprocess2 extends testprocess {
         super(m, xpc);
     }
 
-    @Override
-    public void runProcess() {
-  
-    }
     
 }
