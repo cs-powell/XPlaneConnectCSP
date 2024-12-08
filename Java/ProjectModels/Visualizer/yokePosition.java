@@ -38,7 +38,8 @@ class yokePosition extends JComponent {
         g2.setColor(Color.red);
         int currX = (int)(x*xBound) + xBound/2 - width/2;
         int currY = (int)(y*yBound) + yBound/2 - height/2;
-        System.out.println("CurrX, CurrY: " + currX +", " + currY);
+
+//        System.out.println("CurrX, CurrY: " + currX +", " + currY);
         // g2.drawOval(currX, currY, width, height);
        
         g2.fillOval(currX, currY, width, height);

@@ -33,7 +33,7 @@ public class MindQueue {
         return q.isEmpty();
     }
 
-    public String printQueue() {
+    public String queueToString() {
         String queueTrace = "Next to Execute ==> ";
 
         for (Action action : q) {
@@ -47,6 +47,7 @@ public class MindQueue {
                 queueTrace += "[D]";
             }
         }
+        queueTrace  += "\n";
         return queueTrace;
     }
 

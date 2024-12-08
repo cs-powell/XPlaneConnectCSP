@@ -5,6 +5,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 import CognitiveModel.ModelFiles.*;
 
@@ -12,7 +13,11 @@ public class visualizer {
 
     JFrame frame = new JFrame();
     JPanel frameBottom = new JPanel();
-    JPanel display = new JPanel();
+    JPanel controlDisplay = new JPanel();
+    JPanel modelDisplay = new JPanel();
+    JTextArea modelQueue = new JTextArea();
+    JTextArea modelVision = new JTextArea();
+    JPanel mainDisplay = new JPanel();
     JPanel visualizer = new JPanel();
     JPanel yokeGrid = new JPanel();
     axis axis = new axis(0,0);
@@ -42,8 +47,9 @@ public class visualizer {
         frame.setVisible(true);
 
        
-        display.setPreferredSize(new Dimension(100,100));
-        display.setLayout(new GridLayout(2,4));
+        controlDisplay.setPreferredSize(new Dimension(100,100));
+
+        controlDisplay.setLayout(new GridLayout(2,4));
 
         Font fontTitles = new Font("Impact", 1,40);
         Font fontData = new Font("Monospaced", 1,30);
@@ -84,14 +90,14 @@ public class visualizer {
         two.setText("Test");
         three.setText("Test");
         four.setText("Test");
-        display.add(titleOne);
-        display.add(titleTwo);
-        display.add(titleThree);
-        display.add(titleFour);
-        display.add(one);
-        display.add(two);
-        display.add(three);
-        display.add(four);
+        controlDisplay.add(titleOne);
+        controlDisplay.add(titleTwo);
+        controlDisplay.add(titleThree);
+        controlDisplay.add(titleFour);
+        controlDisplay.add(one);
+        controlDisplay.add(two);
+        controlDisplay.add(three);
+        controlDisplay.add(four);
 
         
         visualizer.setLayout(new GridLayout(2,1));
@@ -170,10 +176,28 @@ public class visualizer {
         tool3.add(b6);
         buttonBar.add(tool2);
         buttonBar.add(tool3);
-        
+
+        modelQueue.setRows(3);
+        modelQueue.setPreferredSize(new Dimension(250, mainDisplay.getWidth()));
+
+
+        modelVision.setRows(1);
+        Font font = new Font("Verdana", Font.BOLD, 12);
+        modelVision.setFont(font);
+        modelVision.setBackground(Color.PINK);
+        modelVision.setPreferredSize(new Dimension(250, mainDisplay.getWidth()));
+
+        modelDisplay.setLayout(new GridLayout(2,1));
+        modelDisplay.add(modelQueue);
+        modelDisplay.add(modelVision);
+
+
+        mainDisplay.setLayout(new BorderLayout());
+        mainDisplay.add(controlDisplay,BorderLayout.CENTER);
+        mainDisplay.add(modelDisplay,BorderLayout.SOUTH);
 
         
-        frameBottom.add(display); // Left Side
+        frameBottom.add(mainDisplay); // Left Side
         frameBottom.add(visualizer); // Right Side
         frame.add(frameBottom,BorderLayout.CENTER);
         frame.add(buttonBar, BorderLayout.SOUTH);
@@ -181,7 +205,9 @@ public class visualizer {
     }
 
 
-    public void updateVisualizer(float[] ctrl1){
+    public void updateVisualizer(Model m) throws IOException {
+        float[] ctrl1 = m.getCurrentControls();
+
         one.setText(String.valueOf(ctrl1[0]));
             if(ctrl1[0] >= 0 ) {
                 one.setForeground(Color.green);
@@ -218,7 +244,15 @@ public class visualizer {
             rudderGrid.setX(ctrl1[2]);
             rudderGrid.repaint();
 
-            
+
+            modelQueue.setText(m.getQueue().queueToString());
+            modelQueue.setPreferredSize(new Dimension(mainDisplay.getWidth(),100));
+
+            modelVision.setPreferredSize(new Dimension(mainDisplay.getWidth(),100));
+
+            modelVision.setText("We just looked at: " + m.getStoredVisionTarget() +"\n" +
+                    "Result: " + m.getStoredVisionResult()[0]);
+
 
             // yaw.setYBound(grid.getHeight());
             // yaw.setYBound(grid.getHeight());

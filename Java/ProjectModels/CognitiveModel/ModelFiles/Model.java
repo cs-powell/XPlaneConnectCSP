@@ -13,7 +13,8 @@ public class Model {
     private MindQueue q; // Queue for actions
     boolean modelActive; // On/Off Switch for the model execution
     XPlaneConnect xpc; // Allows connection to the simulator
-    float[] storedVision;
+    String storedVisionTarget;
+    float[] storedVisionResult;
     boolean logCreated;
     boolean logAllowed;
     File dataLogFile = null;
@@ -68,7 +69,7 @@ public class Model {
     }
 
     public void printModelQueue() {
-        System.out.println(q.printQueue());
+        System.out.println(q.queueToString());
     }
 
     public int getModelQueueLength() {
@@ -124,7 +125,8 @@ public class Model {
         String dref = tempV.getTarget();
         try {
             returnArray = xpc.getDREF(dref);
-            storedVision = returnArray.clone();
+            storedVisionTarget = dref;
+            storedVisionResult = returnArray.clone();
             // System.out.println(returnArray[0]);
         } catch (IOException e) {
 
@@ -146,7 +148,7 @@ public class Model {
             switch (motorType) {
                 case PITCHUP:
                     float[] pitchUp = { currentControls[0] + 0.01f };
-                    if (storedVision[0] > 80) {
+                    if (storedVisionResult[0] > 80) {
                         if (currentControls[0] < 0.2f) {
                             System.out.println("Pitching Up");
                             xpc.sendCTRL(pitchUp);
@@ -155,7 +157,7 @@ public class Model {
                     break;
                 case PITCHDOWN:
                     float[] pitchDown = { currentControls[0] - 0.01f };
-                    if (storedVision[0] < 80) {
+                    if (storedVisionResult[0] < 80) {
                         if (currentControls[0] > -0.2f) {
                             // System.out.println("Sending Pitch Down");
                             System.out.println("Pitching Down");
@@ -179,6 +181,7 @@ public class Model {
     private void handleDelayAction(Action temp) {
         Delay tempD = (Delay) temp;
         initiateDelay(tempD.getDelay());
+        storedVisionTarget = "INTERRUPTION: DELAY";
     }
 
     public static void initiateDelay(int delay) {
@@ -197,25 +200,26 @@ public class Model {
             returnArray = xpc.getCTRL(0);
         } catch (IOException e) {
             // TODO Auto-generated catch block
-            throw e;
+            while(returnArray == null) {
+                System.out.println("Waiting for reconnect");
+                returnArray = xpc.getCTRL(0);
+            }
         }
         return returnArray;
     }
 
-
-    public void startLog(){
+    public void startLog() {
         logAllowed = true;
     }
 
-    public void stopLog(){
+    public void stopLog() {
         logAllowed = false;
+        logCreated = false;
     }
 
-    public boolean logPermission(){
+    public boolean logPermission() {
         return logAllowed;
     }
-
-
 
     public void logData() {
         if(logAllowed) {
@@ -226,15 +230,31 @@ public class Model {
 
     private void logProcess(){
         if(!logCreated) {
-            dataLogFile = new File("./dataLog/" + java.time.LocalDateTime.now());
+            dataLogFile = new File("./dataLog/" + java.time.LocalDateTime.now() + ".csv");
             logCreated = true;
-        }
+            try {
+                float[] ctrl1 = this.getCurrentControls();
+                String setup = "Elevator, Roll, Yaw, Throttle, Flaps\n";
+                FileWriter fw = new FileWriter(dataLogFile, true);
+                BufferedWriter br = new BufferedWriter(fw);
+                br.write(setup);
+                br.flush();
+            } catch (IOException e) {
 
+            }
+        }
             String log = null;
             try {
                 float[] ctrl1 = this.getCurrentControls();
+
+
+                //Labled Format
                 log = String.format("[Elevator: %2f] [Roll: %2f] [Yaw: %2f] [Throttle:%2f] [Flaps: %2f] \n",
                 ctrl1[0], ctrl1[1], ctrl1[2], ctrl1[3], ctrl1[5]);
+                //CSV Format
+                log = String.format("%2f, %2f, %2f, %2f, %2f\n",
+                        ctrl1[0], ctrl1[1], ctrl1[2], ctrl1[3], ctrl1[5]);
+
                 FileWriter fw = new FileWriter(dataLogFile, true);
                 BufferedWriter br = new BufferedWriter(fw);
                 br.write(log);
@@ -244,5 +264,14 @@ public class Model {
                 e.printStackTrace();
                 System.out.println("No data to log");
             }
+    }
+
+
+    public float[] getStoredVisionResult() {
+        return storedVisionResult;
+    }
+
+    public String getStoredVisionTarget() {
+        return storedVisionTarget;
     }
 }
