@@ -5,17 +5,13 @@ import java.awt.Graphics;
 import java.awt.*;
 
 public class rudderPosition extends JComponent {
-
     int xBound = 0;
     int yBound = 0;
-
     float rudderTravel = 0;
-
     rudderPosition(int currentXBound, int currentYBound) {
        xBound = currentXBound;
        yBound = currentYBound;
     }
-  
     public void paint(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
         int spacer = 10;
@@ -23,9 +19,9 @@ public class rudderPosition extends JComponent {
         g2.fillRect(0, spacer, xBound, yBound - spacer);
 
         g2.setColor(Color.red);
-        int width = (int) (xBound/2 * rudderTravel);
+        int width = (int) (xBound / 2 * rudderTravel);
         //g2.drawRect(xBound/2, 0 +spacer, width, yBound);
-        g2.fillRect(xBound/2, 0 + spacer, width, yBound);
+        g2.fillRect(xBound / 2, 0 + spacer, width, yBound);
         
         g.drawString("Yaw Left",0, yBound/2);
         int textWidth = g.getFontMetrics().stringWidth("Roll Right");

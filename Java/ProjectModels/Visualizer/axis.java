@@ -16,8 +16,7 @@ public class axis extends JComponent {
         yBound = currentY;
     }
 
-    public void paint(Graphics g)
-    {
+    public void paint(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
         g2.setColor(Color.green);
         g2.drawLine(xBound/2, 0, xBound/2, yBound);

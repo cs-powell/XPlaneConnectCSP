@@ -4,6 +4,10 @@ package CognitiveModel.ModelFiles;
 import java.util.LinkedList;
 
 public class MindQueue {
+    /*
+    Recommended Changes/Improvements
+    See Google Doc Notes 12/11/24
+     */
 
     LinkedList<Action> q;
 

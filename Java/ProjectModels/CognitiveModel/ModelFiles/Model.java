@@ -134,6 +134,11 @@ public class Model {
     }
 
     private void handleMotorAction(Action temp) {
+        /*
+        TODO: GoogleDoc Notes 12/11/24
+
+         */
+
         Motor tempM = (Motor) temp;
         MotorType motorType = tempM.getMotorType();
         float[] currentControls = null;
@@ -228,7 +233,7 @@ public class Model {
     }
 
 
-    private void logProcess(){
+    private void logProcess() {
         if(!logCreated) {
             dataLogFile = new File("./dataLog/" + java.time.LocalDateTime.now() + ".csv");
             logCreated = true;
@@ -246,15 +251,12 @@ public class Model {
             String log = null;
             try {
                 float[] ctrl1 = this.getCurrentControls();
-
-
-                //Labled Format
+                //Labeled Format
                 log = String.format("[Elevator: %2f] [Roll: %2f] [Yaw: %2f] [Throttle:%2f] [Flaps: %2f] \n",
                 ctrl1[0], ctrl1[1], ctrl1[2], ctrl1[3], ctrl1[5]);
                 //CSV Format
                 log = String.format("%2f, %2f, %2f, %2f, %2f\n",
                         ctrl1[0], ctrl1[1], ctrl1[2], ctrl1[3], ctrl1[5]);
-
                 FileWriter fw = new FileWriter(dataLogFile, true);
                 BufferedWriter br = new BufferedWriter(fw);
                 br.write(log);
@@ -266,12 +268,16 @@ public class Model {
             }
     }
 
-
     public float[] getStoredVisionResult() {
         return storedVisionResult;
     }
 
     public String getStoredVisionTarget() {
         return storedVisionTarget;
+    }
+
+
+    public XPlaneConnect exportXPC() {
+        return xpc;
     }
 }

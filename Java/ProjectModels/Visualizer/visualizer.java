@@ -9,9 +9,8 @@ import java.io.IOException;
 
 import CognitiveModel.ModelFiles.*;
 
-public class visualizer {
+public class visualizer extends Screen {
 
-    JFrame frame = new JFrame();
     JPanel frameBottom = new JPanel();
     JPanel controlDisplay = new JPanel();
     JPanel modelDisplay = new JPanel();
@@ -27,25 +26,42 @@ public class visualizer {
     JLabel two = new JLabel();
     JLabel three = new JLabel();
     JLabel four = new JLabel();
-    
+    Timer t = new Timer(1, null);
     Model m;
-
-
-
-    public visualizer(Model m){
+    public visualizer(Model m) {
+        super(new BorderLayout());
         this.m = m;
+        t.addActionListener(e -> {
+            try {
+                if (m.exportXPC().getCTRL(0) != null) { // Check to Make sure the XPC is actually receiving data
+                    m.next();
+                    updateVisualizer(m);
+                } else {
+                    System.out.print("XPC not returning data yet");
+                }
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        initializeDisplay();
     }
 
     public void initializeDisplay() {
-        try { 
-            UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel"); 
-        } catch(Exception ignored){}
-        
-        frame.setPreferredSize(new Dimension(1700,270));
-        frame.setLayout(new BorderLayout());
-        frameBottom.setLayout(new GridLayout(1,2));
-        frame.setVisible(true);
+//        try {
+//            UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+//        } catch(Exception ignored){
+//
+//        }
 
+        this.setPreferredSize(new Dimension(1700,270));
+        this.setVisible(true);
+
+//        frame.setPreferredSize(new Dimension(1700,270));
+//        frame.setLayout(new BorderLayout());
+//        frame.setVisible(true);
+
+
+        frameBottom.setLayout(new GridLayout(1,2));
        
         controlDisplay.setPreferredSize(new Dimension(100,100));
 
@@ -136,14 +152,14 @@ public class visualizer {
         ActionListener press = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(m.logPermission() == false){
+                if(m.logPermission() == false) {
                     m.startLog();
-                    JOptionPane.showMessageDialog(frame,"Data Logging Enabled");
+                    JOptionPane.showMessageDialog(visualizer,"Data Logging Enabled");
                     tool.setBackground(Color.green);
                     b1.setText("Data Log Enabled");
                 } else {
                     m.stopLog();
-                    JOptionPane.showMessageDialog(frame,"Data Logging Disabled");
+                    JOptionPane.showMessageDialog(visualizer,"Data Logging Disabled");
                     tool.setBackground(Color.white);
                     b1.setText("Data Log Disabled");
                 }
@@ -157,7 +173,7 @@ public class visualizer {
         tool.setOrientation(1);
         tool.add(b1);
         tool.add(b2);
-        frame.add(tool,BorderLayout.WEST);
+        this.add(tool,BorderLayout.WEST);
 
 
 
@@ -199,35 +215,36 @@ public class visualizer {
         
         frameBottom.add(mainDisplay); // Left Side
         frameBottom.add(visualizer); // Right Side
-        frame.add(frameBottom,BorderLayout.CENTER);
-        frame.add(buttonBar, BorderLayout.SOUTH);
-        frame.pack();
+        this.add(frameBottom,BorderLayout.CENTER);
+        this.add(buttonBar, BorderLayout.SOUTH);
+//      frame.pack();
+
     }
 
-
     public void updateVisualizer(Model m) throws IOException {
+
         float[] ctrl1 = m.getCurrentControls();
 
         one.setText(String.valueOf(ctrl1[0]));
-            if(ctrl1[0] >= 0 ) {
+            if (ctrl1[0] >= 0 ) {
                 one.setForeground(Color.green);
             } else {
                 one.setForeground(Color.red);
             }
             two.setText(String.valueOf(ctrl1[1]));
-            if(ctrl1[1] >= 0 ) {
+            if (ctrl1[1] >= 0 ) {
                 two.setForeground(Color.green);
             } else {
                 two.setForeground(Color.red);
             }
             three.setText(String.valueOf(ctrl1[2]));
-            if(ctrl1[2] >= 0 ) {
+            if (ctrl1[2] >= 0 ) {
                 three.setForeground(Color.green);
             } else {
                 three.setForeground(Color.red);
             }
             four.setText(String.valueOf(ctrl1[3]));
-            if(ctrl1[3] >= 0 ) {
+            if (ctrl1[3] >= 0 ) {
                 four.setForeground(Color.green);
             } else {
                 four.setForeground(Color.red);
@@ -244,7 +261,6 @@ public class visualizer {
             rudderGrid.setX(ctrl1[2]);
             rudderGrid.repaint();
 
-
             modelQueue.setText(m.getQueue().queueToString());
             modelQueue.setPreferredSize(new Dimension(mainDisplay.getWidth(),100));
 
@@ -252,7 +268,6 @@ public class visualizer {
 
             modelVision.setText("We just looked at: " + m.getStoredVisionTarget() +"\n" +
                     "Result: " + m.getStoredVisionResult()[0]);
-
 
             // yaw.setYBound(grid.getHeight());
             // yaw.setYBound(grid.getHeight());
@@ -262,8 +277,17 @@ public class visualizer {
             axis.setXBound(yokeGrid.getWidth());
             axis.setYBound(yokeGrid.getHeight());
             axis.repaint();
+
+            JButton j = new JButton();
+
     }
-    
+    public JPanel exportDisplay() {
+        return visualizer;
+    }
+
+    public Timer exportTimer() {
+        return t;
+    }
 }
 
 
