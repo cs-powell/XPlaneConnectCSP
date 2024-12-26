@@ -40,6 +40,7 @@ public abstract class testprocess {
             ScreenFrame f = new ScreenFrame(sm,d);
             f.initialize();
             timer1.start();
+            xpc.sendDREF("sim/time/sim_speed", 5f);
             while (m.isActive() && !m.isEmpty()) {
                 innerProcess();
             }
