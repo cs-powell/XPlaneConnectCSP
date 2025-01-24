@@ -5,6 +5,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import CognitiveModel.ModelFiles.*;
@@ -28,6 +30,10 @@ public class visualizer extends Screen {
     JLabel four = new JLabel();
     Timer t = new Timer(1, null);
     Model m;
+
+
+    FileWriter fw;
+    BufferedWriter bw;
     public visualizer(Model m) {
         super(new BorderLayout());
         this.m = m;
@@ -163,12 +169,16 @@ public class visualizer extends Screen {
                     tool.setBackground(Color.white);
                     b1.setText("Data Log Disabled");
                 }
-                
+
+
             }
             
         };
         b1.addActionListener(press);
-        JButton b2 = new JButton("button 2");
+        JButton b2 = new JButton("Make Note");
+        b2.addActionListener(e-> {
+            makeNote();
+        });
         tool.setBackground(Color.red);
         tool.setOrientation(1);
         tool.add(b1);
@@ -287,6 +297,59 @@ public class visualizer extends Screen {
 
     public Timer exportTimer() {
         return t;
+    }
+
+    public void makeNote() {
+        JFrame noteFrame = new JFrame();
+        JPanel noteScreen = new JPanel();
+        noteScreen.setLayout(new GridLayout(4,1));
+        JTextField title = new JTextField();
+        JTextField date = new JTextField();
+        JTextArea entry = new JTextArea();
+        JButton saveNote = new JButton();
+        try {
+            fw = new FileWriter("README.txt", true);
+            bw = new BufferedWriter(fw);
+
+            noteFrame.setPreferredSize(new Dimension(500,500));
+
+
+            noteScreen.add(title);
+            noteScreen.add(date);
+            noteScreen.add(entry);
+            noteScreen.add(saveNote);
+            noteFrame.add(noteScreen);
+
+            noteFrame.pack();
+            noteFrame.setVisible(true);
+
+            saveNote.addActionListener(e -> {
+                try {
+                    String newEntry = String.format("\n{ title: \"%s\"\ndate: \"%s\"\n entry:\"%s\"\n},",title.getText(),date.getText(),entry.getText());
+
+                    bw.write(newEntry);
+                    bw.flush();
+                    bw.close();
+                } catch (IOException e1) {
+                    JOptionPane error = new JOptionPane("Error saving");
+                }
+
+            });
+
+
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+
+
+
+
+        noteFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
+
+
+
+
     }
 }
 

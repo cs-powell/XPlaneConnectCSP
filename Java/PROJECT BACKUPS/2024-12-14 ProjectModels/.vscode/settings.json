@@ -1,0 +1,6 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "/Users/flyingtopher/Desktop/Code Citadel/flatlaf-3.5.2.jar"
+    ]
+}

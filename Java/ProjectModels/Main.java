@@ -16,14 +16,9 @@ public class Main {
         testprocess1 tp1 = new testprocess1();
         tp1.runProcess();
 
-//        Screen s2 = new Screen(new GridLayout(1,2));
-//        s2.add(t3);
-//        s2.add(t4);
-
-
-
-
-
+//      Screen s2 = new Screen(new GridLayout(1,2));
+//      s2.add(t3);
+//      s2.add(t4);
 
 //        testprocess2 tp2 = new testprocess2(m, null);
 //        tp2.runProcess();

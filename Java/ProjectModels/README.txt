@@ -1,7 +1,14 @@
 Project Log:
-
-TODO: Backfill from Google doc project log; create automated prompt.
-
-2024-12-17: {
-
-}
+{ title: "Title Test"
+date: "Date Test"
+ entry:"Well Well Well, Loooky what we have here. I need some lorem
+Ipsum
+Up
+In
+Here
+BOOYAHHHHHHHHH"
+},
+{ title: "dasd"
+date: "asdasd"
+ entry:"Anotha one"
+},
