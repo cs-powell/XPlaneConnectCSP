@@ -61,10 +61,12 @@ class AircraftLandingModel(pyactr.ACTRModel):
         
         return control_value, integral_error  # Return control value and updated integral error
 
-    def update_controls_simultaneously(self):
+    def update_controls_simultaneously(self):  
         """
         Update all controls at the same time by calculating control values for each parameter.
         """
+
+        print("Entered Update Controls Simultaneously")
         # Compute control values for all parameters (yoke pull, yoke steer, rudder, throttle)
         yoke_pull, self.integral_airspeed = self.proportionalIntegralControl(self.airspeed, self.target_airspeed, self.integral_airspeed)
         yoke_steer, self.integral_roll = self.proportionalIntegralControl(self.roll, self.target_roll, self.integral_roll)
@@ -79,12 +81,13 @@ class AircraftLandingModel(pyactr.ACTRModel):
         Sends all control inputs to X-Plane using XPlaneConnect
         """
         # Send yoke pull, yoke steer, rudder, and throttle simultaneously
-        self.client.sendControls([yoke_pull, yoke_steer, 0, rudder, throttle])  # Control inputs: [yoke_pull, yoke_steer, roll/pitch, rudder, throttle]
+        self.client.sendCTRL([yoke_pull, yoke_steer, rudder, throttle, -998, -998])  # Control inputs: [yoke_pull, yoke_steer, rudder, throttle]
 
 
 
     # Update the model's DM based on X-Plane data
     def update_aircraft_state(self):
+        print("Entered Update Aircraft State")
         # Retrieve current data from X-Plane
         airspeed = self.client.getDREF("sim/cockpit2/gauges/indicators/airspeed_kts_pilot")
         roll = self.client.getDREF("sim/cockpit2/gauges/indicators/roll_AHARS_deg_pilot")
@@ -96,11 +99,16 @@ class AircraftLandingModel(pyactr.ACTRModel):
         # model.declarative_memory["roll"] = roll
         # model.declarative_memory["heading"] = heading
         # model.declarative_memory["descent_rate"] = descent_rate
+       
+        self.airspeed = airspeed[0]
+        self.roll = roll[0]
+        self.heading = heading[0]
+        self.descent_rate = descent_rate[0]
+        print(self.airspeed)
+        print(self.roll)
+        print(self.heading)
+        print(self.descent_rate)
 
-        self.airspeed = airspeed
-        self.roll = roll
-        self.heading = heading
-        self.descent_rate = descent_rate
 
     # def rules(self):
     #     """

@@ -1,6 +1,6 @@
 from time import sleep
 import xpc
-from model import AircraftLandingModel
+from cognitiveModel import AircraftLandingModel
 
 def ex():
     print("X-Plane Connect example script")
@@ -15,9 +15,8 @@ def ex():
             print("Error establishing connection to X-Plane.")
             print("Exiting...")
             return
-        
 
-        test = AircraftLandingModel(client)
+        cogModel = AircraftLandingModel(client)
     
         # # Set position of the player aircraft
         # print("Setting position")
@@ -102,9 +101,9 @@ def ex():
             client.pauseSim(True) # Pause Simulator
             #Run Model (Send commands to simulator within this process)
             ####Insert Model Here, some assembly required#######
-            test.update_aircraft_state()
-            test.update_controls_simultaneously()
-                #Please work
+            cogModel.update_aircraft_state()
+            cogModel.update_controls_simultaneously()
+                #Please work........no excuses now
             #Repeat
             print("Advanced 50 Milliseconds: Step #" + str(count))
             count+=1
