@@ -1,6 +1,5 @@
-package gov.nasa.xpc.ex;
 
-import gov.nasa.xpc.XPlaneConnect;
+
 import java.io.IOException;
 import java.net.SocketException;
 import java.util.Arrays;
