@@ -7,6 +7,7 @@ import xpc
 class AircraftLandingModel(pyactr.ACTRModel):
     def __init__(self,client):
         super().__init__()
+
         # Initialize the declarative memory (DM)
         # self.decmem.add( 
         #     [
@@ -20,6 +21,7 @@ class AircraftLandingModel(pyactr.ACTRModel):
         #         ("target_descent_rate", 500)  # Target descent rate (fpm)
         #     ]  
         # )
+
         self.client = client
         self.airspeed = 100
         self.roll = 0
@@ -72,7 +74,7 @@ class AircraftLandingModel(pyactr.ACTRModel):
         yoke_steer, self.integral_roll = self.proportionalIntegralControl(self.roll, self.target_roll, self.integral_roll)
         rudder, self.integral_heading = self.proportionalIntegralControl(self.heading, self.target_heading, self.integral_heading)
         throttle, self.integral_descent_rate = self.proportionalIntegralControl(self.descent_rate, self.target_descent_rate, self.integral_descent_rate)
-
+        
         # Send all controls simultaneously to X-Plane
         self.send_controls_to_xplane(yoke_pull, yoke_steer, rudder, throttle)
 
@@ -81,6 +83,7 @@ class AircraftLandingModel(pyactr.ACTRModel):
         Sends all control inputs to X-Plane using XPlaneConnect
         """
         # Send yoke pull, yoke steer, rudder, and throttle simultaneously
+        print("Yoke Pull:" + str(yoke_pull))
         self.client.sendCTRL([yoke_pull, yoke_steer, rudder, throttle, -998, -998])  # Control inputs: [yoke_pull, yoke_steer, rudder, throttle]
 
 

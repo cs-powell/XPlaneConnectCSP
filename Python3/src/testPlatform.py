@@ -97,8 +97,8 @@ def ex():
             #50 Millisecond Timesteps
             sleep(0.05)
             client.pauseSim(False) #Unpause
-            sleep(0.05) # Run 50 Milliseconds
-            client.pauseSim(True) # Pause Simulator
+            # sleep(0.05) # Run 50 Milliseconds
+            # client.pauseSim(True) # Pause Simulator
             #Run Model (Send commands to simulator within this process)
             ####Insert Model Here, some assembly required#######
             cogModel.update_aircraft_state()
