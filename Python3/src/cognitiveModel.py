@@ -51,8 +51,9 @@ class AircraftLandingModel(pyactr.ACTRModel):
 
         # Integral gains (tune these values for performance)
         self.Kp = 0.1  # Proportional gain
-        # self.Ki = 0.01  # Integral gain
-        self.Ki = 0.001  # Integral gain
+        # self.Ki = 0.01  # Integral gain                
+        self.Ki = 0  # Integral gain
+
 
 
     def printControls(self,calculated,errors,yokePull,yokeSteer,rudder,throttle):
@@ -164,16 +165,16 @@ class AircraftLandingModel(pyactr.ACTRModel):
 
         throttle = 0.15
 
-        if(self.altitude < 350): ## Integrate using the control equations;; A goal state update
+        if(self.altitude < 100): ## Integrate using the control equations;; A goal state update
             throttle = 0.1
             yoke_pull = 0.3
 
 
-        if(self.altitude < 200): ## Integrate using the control equations;; A goal state update
+        if(self.altitude < 70): ## Integrate using the control equations;; A goal state update
             throttle = 0.05
             yoke_pull = 0.4
 
-        if(self.altitude < 150): ## Integrate using the control equations;; A goal state update
+        if(self.altitude < 50): ## Integrate using the control equations;; A goal state update
             throttle = 0
             yoke_pull = 0.4
         
