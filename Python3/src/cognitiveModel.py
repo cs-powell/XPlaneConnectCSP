@@ -8,6 +8,10 @@ class scaleFactor():
     SCALEYOKESTEER = 10
     SCALERUDDER = 10
     SCALETHROTTLE = 1000
+
+
+
+###Define variables/parameters for aircraft class/category : Wisdom of Raju 
 class AircraftLandingModel(pyactr.ACTRModel):
     def __init__(self,client):
         super().__init__()
@@ -51,8 +55,8 @@ class AircraftLandingModel(pyactr.ACTRModel):
 
         # Integral gains (tune these values for performance)
         self.Kp = 0.1  # Proportional gain
-        # self.Ki = 0.01  # Integral gain                
-        self.Ki = 0  # Integral gain
+        self.Ki = 0.01  # Integral gain                
+        # self.Ki = 2  # Integral gain
 
 
 
@@ -165,9 +169,11 @@ class AircraftLandingModel(pyactr.ACTRModel):
 
         throttle = 0.15
 
-        if(self.altitude < 100): ## Integrate using the control equations;; A goal state update
+
+        ##INTEGRAL CONTROL
+        if(self.altitude < 350): ## Integrate using the control equations;; A goal state update
             throttle = 0.1
-            yoke_pull = 0.3
+            yoke_pull = 0.7
 
 
         if(self.altitude < 70): ## Integrate using the control equations;; A goal state update
@@ -176,26 +182,25 @@ class AircraftLandingModel(pyactr.ACTRModel):
 
         if(self.altitude < 50): ## Integrate using the control equations;; A goal state update
             throttle = 0
-            yoke_pull = 0.4
+            yoke_pull = 0.7
         
 
         if(self.airspeed < self.target_airspeed):
            
     
-            #Method 2: Travel Limits (0 --> 0.2)
-            # yoke_pull = max(-0.2, yoke_pull)
+        #Method 2: Travel Limits (0 --> 0.2)
+        # yoke_pull = max(-0.2, yoke_pull)
 
 
             #Invert Throttl Temporarily
             self.printControls(1,0,yoke_pull,yoke_steer,rudder,throttle)
-        # Send all controls simultaneously to X-Plane
+
+            # Send all controls simultaneously to X-Plane
             self.send_controls_to_xplane(yoke_pull, yoke_steer, 0, throttle)
 
         if(self.airspeed > self.target_airspeed):
-
-             #Method 2: Travel Limits (0 --> 0.2)
+            # Method 2: Travel Limits (0 --> 0.2)
             # yoke_pull = min(0.2, yoke_pull)
-
             self.printControls(1,0,yoke_pull,yoke_steer,rudder,throttle)
             self.send_controls_to_xplane(yoke_pull, yoke_steer, 0, throttle)
 
