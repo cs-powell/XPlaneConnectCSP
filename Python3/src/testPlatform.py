@@ -93,7 +93,7 @@ def ex():
         # sim/operation/override/override_timestep 
 
         #Doing stuff In between Test SECOND INCREMENTS
-        while(count < 1000000 ):
+        while(count < 1000000):
             #50 Millisecond Timesteps
             sleep(0.05)
             client.pauseSim(False) #Unpause
@@ -105,7 +105,7 @@ def ex():
             cogModel.update_controls_simultaneously()
                 #Please work........no excuses now
             #Repeat
-            print("Advanced 50 Milliseconds: Step #" + str(count))
+            # print("Advanced 50 Milliseconds: Step #" + str(count))
             count+=1
 
 
@@ -127,14 +127,6 @@ def ex():
             # print("Exit Pause" + str(count))
             # sleep(0.5)
             # count+=1
-
-        
-
-        # Toggle pause state to resume
-        print("Resuming")
-        client.pauseSim(False)
-        # Let the sim run for a bit.
-        sleep(4)
 
 
         print("End of Python client example")
