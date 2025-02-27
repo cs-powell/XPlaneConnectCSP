@@ -9,8 +9,6 @@ class scaleFactor():
     SCALERUDDER = 10
     SCALETHROTTLE = 1000
 
-
-
 ###Define variables/parameters for aircraft class/category : Wisdom of Raju 
 class AircraftLandingModel(pyactr.ACTRModel):
     def __init__(self,client):
@@ -31,15 +29,42 @@ class AircraftLandingModel(pyactr.ACTRModel):
         # )
 
         self.client = client
-        self.airspeed = 100
-        self.roll = 0
-        self.heading = 0
-        self.descent_rate = 500
+
+        airspeed = self.client.getDREF("sim/cockpit2/gauges/indicators/airspeed_kts_pilot")
+        roll = self.client.getDREF("sim/cockpit2/gauges/indicators/roll_AHARS_deg_pilot")
+        heading = self.client.getDREF("sim/cockpit2/gauges/indicators/heading_AHARS_deg_mag_pilot")
+        descent_rate = self.client.getDREF("sim/flightmodel/position/vh_ind_fpm")
+        altitude = self.client.getDREF("sim/cockpit2/gauges/indicators/altitude_ft_pilot")
+        pitch = self.client.getDREF("sim/flightmodel/position/true_theta")
+
+       
+        
+        # Update the model's declarative memory
+        # model.declarative_memory["airspeed"] = airspeed
+        # model.declarative_memory["roll"] = roll
+        # model.declarative_memory["heading"] = heading
+        # model.declarative_memory["descent_rate"] = descent_rate
+       
+        self.airspeed = airspeed[0]
+        self.roll = roll[0]
+        self.heading = heading[0]
+        self.descent_rate = descent_rate[0]
+        self.altitude = altitude[0]
+       
+
+
+        #Flare Specific Parameters 
+        self.flare = False
+        self.pitch = pitch[0]
+
+
+
         self.target_airspeed = 80
         self.target_roll = 0
         self.target_heading = 0
         self.target_descent_rate = 500
-        self.altitide = 2000
+        self.target_pitch = 20
+
    
         # Declare the state for previous values
         self.previous_airspeed = None
@@ -53,6 +78,9 @@ class AircraftLandingModel(pyactr.ACTRModel):
         self.integral_heading = 0
         self.integral_descent_rate = 0
 
+        #Flare Specific Parameters
+        self.integral_pitch = 0 
+
         # Integral gains (tune these values for performance)
         self.Kp = 0.1  # Proportional gain
         self.Ki = 0.01  # Integral gain                
@@ -61,16 +89,17 @@ class AircraftLandingModel(pyactr.ACTRModel):
 
 
     def printControls(self,calculated,errors,yokePull,yokeSteer,rudder,throttle):
+        print("In print controls")
         if(calculated == 1):
             # print("*        Calculated Controls         *")
             # print("*Parameter,Target,Current,Yoke Pull:      " + "Airspeed, " + str(self.target_airspeed) + "," +  str(self.airspeed)+ "," + str(yokePull))
             # print("*Parameter,Target,Current,Yoke Steer:     " + "Roll, " + str(self.target_roll) + "," +  str(self.roll)+ "," + str(yokeSteer))
             # print("*Parameter,Target,Current,Rudder:         " + "Heading, " + str(self.target_heading) + "," +  str(self.heading)+ "," + str(rudder))
             # print("*Parameter,Target,Current,Throttle:       " + "Descent Rate, " + str(self.target_descent_rate) + "," +  str(self.descent_rate)+ "," + str(throttle))
-            parameter = ["Airspeed","Roll","Heading","Descent Rate","Altitude"]
-            target =  [str(round(self.target_airspeed)),str(round(self.target_roll)),str(round(self.target_heading,3)),str(round(self.target_descent_rate,3)),str(round(self.altitude,3))]
-            current = [str(round(self.airspeed,3)),str(round(self.roll,3)),str(round(self.heading,3)),str(round(self.descent_rate,3)),str(round(self.altitude,3))]
-            controlVal = [str(round(yokePull,3)),str(round(yokeSteer,3)),str(round(rudder,3)),str(round(throttle,3)),str(round(self.altitude,3))]
+            parameter = ["Airspeed","Roll","Heading","Descent Rate","Altitude","Pitch"]
+            target =  [str(round(self.target_airspeed)),str(round(self.target_roll)),str(round(self.target_heading,3)),str(round(self.target_descent_rate,3)),str(round(self.altitude,3)),str(round(self.target_pitch,3))]
+            current = [str(round(self.airspeed,3)),str(round(self.roll,3)),str(round(self.heading,3)),str(round(self.descent_rate,3)),str(round(self.altitude,3)),str(round(self.pitch,3))]
+            controlVal = [str(round(yokePull,3)),str(round(yokeSteer,3)),str(round(rudder,3)),str(round(throttle,3)),str(round(self.altitude,3)),str(self.flare)]
 
             header_row = "{:<20} {:<20} {:<20} {:>10}"
             headers = "Parameter Target Current Control_Value".split()
@@ -120,22 +149,12 @@ class AircraftLandingModel(pyactr.ACTRModel):
 
         # Calculate the control value using the PI formula
         control_value = (self.Kp * error) + (self.Ki * integral_error)
-        # print("BEFORE Control Value: " +  str(control_value))
 
         ###Transformations:
         #Simple Sigmoid:
-        control_value = (2 / (1 + math.exp(-(control_value/scalingFactor)))) - 1
-        # print("AFTER Control Value: " +  str(control_value))
+        control_value = (2 / (1 + math.exp(-(control_value/scalingFactor)))) - 1  
 
-        #### Get rough idea of ranges (i.e. airspeed 0---->90+)
-        #### Scale the transformations
-        ### TODO: Move the scaling to where each conrol is updated individually so scaling can be changed for each/ isolate each control
-        ### Consider switching controller/control equation if scaling alone does not produce desired behavior
-        ### Look for: Extreme deflections; Zero-point/Stable point(s)
-        ### TODO: Nicer outputs; More like reading a book, less like reading binary
-        ### TODO: Throttle established descent
-        
-        self.printVariables(print,target,current,error,(self.Kp * error),(self.Ki * integral_error))
+        # self.printVariables(print,target,current,error,(self.Kp * error),(self.Ki * integral_error))
         return control_value, integral_error  # Return control value and updated integral error
 
 
@@ -143,69 +162,86 @@ class AircraftLandingModel(pyactr.ACTRModel):
         """
         Update all controls at the same time by calculating control values for each parameter.
         """
+        # print("In update controls")
+     
+        
+        
 
         # print("Entered Update Controls Simultaneously")
         # Compute control values for all parameters (yoke pull, yoke steer, rudder, throttle)
+        if(self.flare): 
+             yoke_pull, self.integral_airspeed = self.proportionalIntegralControl(1,self.pitch, 
+                                                                             self.target_pitch, 
+                                                                             self.integral_pitch, 
+                                                                             scaleFactor.SCALEYOKEPULL)
+             print("Flare Control Scheme Active")
         
-        yoke_pull, self.integral_airspeed = self.proportionalIntegralControl(1,self.airspeed, 
+        if(self.flare == False):
+            yoke_pull, self.integral_airspeed = self.proportionalIntegralControl(1,self.airspeed, 
                                                                              self.target_airspeed, 
                                                                              self.integral_airspeed, 
                                                                              scaleFactor.SCALEYOKEPULL)
+            
+            
+
         yoke_steer, self.integral_roll = self.proportionalIntegralControl(0,self.roll, self.target_roll, self.integral_roll,scaleFactor.SCALEYOKESTEER)
         rudder, self.integral_heading = self.proportionalIntegralControl(0,self.heading, self.target_heading, self.integral_heading,scaleFactor.SCALERUDDER)
         throttle, self.integral_descent_rate = self.proportionalIntegralControl(0,self.descent_rate, self.target_descent_rate, self.integral_descent_rate,scaleFactor.SCALETHROTTLE)
         
 
+        ### 1. For Calculated Yoke and Throttle Values 
+        #Invert Throttle Control & divide by 5 to scale
         throttle = -throttle
         throttle = throttle/5
 
-         #Invert Yoke Pull temporarily
+        #Invert Yoke Pull & divide by 5 to scale
         yoke_pull = -yoke_pull
-         
-        ##Method 1: Scaling
         yoke_pull = yoke_pull/5
 
-        yoke_pull = 0.2
 
-        throttle = 0.15
-
-
-        ##INTEGRAL CONTROL
-        if(self.altitude < 350): ## Integrate using the control equations;; A goal state update
-            throttle = 0.1
-            yoke_pull = 0.7
-
-
-        if(self.altitude < 70): ## Integrate using the control equations;; A goal state update
-            throttle = 0.05
-            yoke_pull = 0.4
-
-        if(self.altitude < 50): ## Integrate using the control equations;; A goal state update
-            throttle = 0
-            yoke_pull = 0.7
+        ## 2. For Constant Yoke and Throttle Values      
+        # Constant yoke "back pressure" equal to 20% of total travel distance
         
 
-        if(self.airspeed < self.target_airspeed):
-           
-    
-        #Method 2: Travel Limits (0 --> 0.2)
-        # yoke_pull = max(-0.2, yoke_pull)
+        if(self.flare == False):
+            yoke_pull = 0.35
+            throttle = 0.15
+        if(self.flare == True):
+            yoke_pull = -yoke_pull
+            yoke_pull = yoke_pull * 20
+            throttle = 0
+
+        # Constant throttle setting below the threshold needed to maintain straight and level flight
+        
+
+        ## Method 1: 
+        # if(self.altitude < 350 and self.airspeed > 175): ## Integrate using the control equations;; A goal state update
+        #     throttle = 0.1
+        #     yoke_pull = 0.4
 
 
-            #Invert Throttl Temporarily
-            self.printControls(1,0,yoke_pull,yoke_steer,rudder,throttle)
+        # if(self.altitude < 300 and self.airspeed > 170): ## Integrate using the control equations;; A goal state update
+        #     throttle = 0.05
+        #     yoke_pull = 0.6
 
-            # Send all controls simultaneously to X-Plane
-            self.send_controls_to_xplane(yoke_pull, yoke_steer, 0, throttle)
-
-        if(self.airspeed > self.target_airspeed):
-            # Method 2: Travel Limits (0 --> 0.2)
-            # yoke_pull = min(0.2, yoke_pull)
-            self.printControls(1,0,yoke_pull,yoke_steer,rudder,throttle)
-            self.send_controls_to_xplane(yoke_pull, yoke_steer, 0, throttle)
+        # if(self.altitude < 250 and self.airspeed > 160): ## Integrate using the control equations;; A goal state update
+        #     throttle = 0
+        #     yoke_pull = 0.8
 
 
-        ## 0 Throttle, Calculated Parameter
+        # if(self.altitude < 250 and self.airspeed > 160): ## Integrate using the control equations;; A goal state update
+        #     throttle = 0
+        #     yoke_pull = 0.8
+ 
+        ##Method 2: Same Control Statements with Change in Parameter to decided pitch from Airspeed ---> Local Pitch Relative to the Horizon
+
+
+        #Switch Target for Pitch to Local Pitch Axis (ex. +10 Degrees nose up)
+        
+        self.printControls(1,0,yoke_pull,yoke_steer,rudder,throttle)
+        # Send all controls simultaneously to X-Plane
+        self.send_controls_to_xplane(yoke_pull, yoke_steer, 0, throttle)
+
 
     def send_controls_to_xplane(self, yoke_pull, yoke_steer, rudder, throttle):
         """
@@ -214,12 +250,15 @@ class AircraftLandingModel(pyactr.ACTRModel):
         # Send yoke pull, yoke steer, rudder, and throttle simultaneously
         # print("Yoke Pull:" + str(yoke_pull))
 
-        #Set the Trim
-        trimdref = "sim/flightmodel/controls/elv_trim"
-        trim = -0.3
-        self.client.sendDREF(trimdref,trim)
-        # self.client.sendDREF("sim/flightmodel/controls/elv_trim",-0.3)
-
+        #Set the Trim to a value that allows the aircraft to osscilate around the target airspeed
+        if(self.flare == False):
+            trimdref = "sim/flightmodel/controls/elv_trim"
+            trim = -0.3
+            self.client.sendDREF(trimdref,trim)
+        if(self.flare):
+            trimdref = "sim/flightmodel/controls/elv_trim"
+            trim = 0
+            self.client.sendDREF(trimdref,trim)
 
         self.client.sendCTRL([yoke_pull, yoke_steer, rudder, throttle, -998, -998])  # Control inputs: [yoke_pull, yoke_steer, rudder, throttle]
 
@@ -227,6 +266,7 @@ class AircraftLandingModel(pyactr.ACTRModel):
 
     # Update the model's DM based on X-Plane data
     def update_aircraft_state(self):
+        # print("In aircraft state")
         # print("Entered Update Aircraft State")
         # Retrieve current data from X-Plane
         airspeed = self.client.getDREF("sim/cockpit2/gauges/indicators/airspeed_kts_pilot")
@@ -234,6 +274,9 @@ class AircraftLandingModel(pyactr.ACTRModel):
         heading = self.client.getDREF("sim/cockpit2/gauges/indicators/heading_AHARS_deg_mag_pilot")
         descent_rate = self.client.getDREF("sim/flightmodel/position/vh_ind_fpm")
         altitude = self.client.getDREF("sim/cockpit2/gauges/indicators/altitude_ft_pilot")
+        pitch = self.client.getDREF("sim/flightmodel/position/true_theta")
+
+       
         
         # Update the model's declarative memory
         # model.declarative_memory["airspeed"] = airspeed
@@ -246,10 +289,13 @@ class AircraftLandingModel(pyactr.ACTRModel):
         self.heading = heading[0]
         self.descent_rate = descent_rate[0]
         self.altitude = altitude[0]
-        # print(self.airspeed)
-        # print(self.roll)
-        # print(self.heading)
-        # print(self.descent_rate)
+        self.pitch = pitch[0]
+
+        if(self.altitude <= 2500):
+            self.flare = True
+            self.Ki = 0.1  ## Increase Control Authority to compensate for decreasing airspeed
+            print("Altitude < 500; Flare Set True")
+  
 
 
     # def rules(self):
