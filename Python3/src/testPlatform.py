@@ -9,7 +9,7 @@ def ex():
         # Verify connection
         try:
             # If X-Plane does not respond to the request, a timeout error
-            # will be raised.
+            # will beff raised.
             client.getDREF("sim/test/test_float")
         except:
             print("Error establishing connection to X-Plane.")
@@ -127,7 +127,6 @@ def ex():
             # print("Exit Pause" + str(count))
             # sleep(0.5)
             # count+=1
-
 
         print("End of Python client example")
         input("Press any key to exit...")
