@@ -7,6 +7,7 @@ def ex():
     print("Setting up simulation")
     with xpc.XPlaneConnect() as client:
         # Verify connection
+        
         try:
             # If X-Plane does not respond to the request, a timeout error
             # will beff raised.
