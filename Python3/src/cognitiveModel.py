@@ -34,7 +34,7 @@ class AircraftLandingModel(pyactr.ACTRModel):
         roll = self.client.getDREF("sim/cockpit2/gauges/indicators/roll_AHARS_deg_pilot")
         heading = self.client.getDREF("sim/cockpit2/gauges/indicators/heading_AHARS_deg_mag_pilot")
         descent_rate = self.client.getDREF("sim/flightmodel/position/vh_ind_fpm")
-        altitude = self.client.getDREF("sim/cockpit2/gauges/indicators/altitude_ft_pilot")
+        altitude = self.client.getDREF("sim/flightmodel/position/y_agl")
         pitch = self.client.getDREF("sim/flightmodel/position/true_theta")
 
        
@@ -56,6 +56,11 @@ class AircraftLandingModel(pyactr.ACTRModel):
         #Flare Specific Parameters 
         self.flare = False
         self.pitch = pitch[0]
+
+        #Rollout Specific Parameters
+        self.rollOut = False
+        
+
 
 
 
@@ -187,7 +192,6 @@ class AircraftLandingModel(pyactr.ACTRModel):
         yoke_steer, self.integral_roll = self.proportionalIntegralControl(0,self.roll, self.target_roll, self.integral_roll,scaleFactor.SCALEYOKESTEER)
         rudder, self.integral_heading = self.proportionalIntegralControl(0,self.heading, self.target_heading, self.integral_heading,scaleFactor.SCALERUDDER)
         throttle, self.integral_descent_rate = self.proportionalIntegralControl(0,self.descent_rate, self.target_descent_rate, self.integral_descent_rate,scaleFactor.SCALETHROTTLE)
-        
 
         ### 1. For Calculated Yoke and Throttle Values 
         #Invert Throttle Control & divide by 5 to scale
@@ -259,6 +263,10 @@ class AircraftLandingModel(pyactr.ACTRModel):
             trimdref = "sim/flightmodel/controls/elv_trim"
             trim = 0
             self.client.sendDREF(trimdref,trim)
+        if(self.rollOut):
+            brakedref = "sim/cockpit2/controls/parking_brake_ratio"
+            brake = 1
+            self.client.sendDREF(brakedref,brake)
 
         self.client.sendCTRL([yoke_pull, yoke_steer, rudder, throttle, -998, -998])  # Control inputs: [yoke_pull, yoke_steer, rudder, throttle]
 
@@ -291,10 +299,23 @@ class AircraftLandingModel(pyactr.ACTRModel):
         self.altitude = altitude[0]
         self.pitch = pitch[0]
 
-        if(self.altitude <= 2500):
+        ##Phase Change Indicator
+        wheelWeight = self.client.getDREF("sim/flightmodel/parts/tire_vrt_def_veh") #Strut deflection, Weight on the wheels
+        wheelRate = self.client.getDREF("sim/flightmodel2/gear/tire_rotation_rate_rad_sec") #Wheel Rotation Rate 
+
+        if(self.altitude <= 50):
             self.flare = True
-            self.Ki = 0.1  ## Increase Control Authority to compensate for decreasing airspeed
+            self.Ki = 0.01  ## Increase Control Authority to compensate for decreasing airspeed
             print("Altitude < 500; Flare Set True")
+
+        if(wheelWeight > 0 and wheelRate > 0):
+            #Two Parameters to Confirm Touchdown and wheel contact
+            # "sim/flightmodel/parts/tire_vrt_def_veh" #Gear Strut Deflection (Weight on wheels)
+            # "sim/flightmodel2/gear/tire_rotation_rate_rad_sec" #Tire Rotation Rate 
+            self.rollOut = True
+            print("Hit the brakes")
+
+        
   
 
 
