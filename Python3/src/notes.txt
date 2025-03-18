@@ -1,0 +1,52 @@
+##Quatitative Metrics of Performance
+    --Descent/Localizer Overtime Graph 
+
+Qualitative
+
+##Cognitive
+    -- Control equations, learned overtime; reinforcement learning
+    -- Not continuous equations; discret steps (every 50 ms)
+    -- "What if games" -> 
+    --Injecting Distraction (something to take time outside of the control cycle)
+        e.g. someone started daydreaming about missing their pet cat (40 milliseconds lost)
+        By injecting the delays to represent different parameters -- 
+        Explore different things about 
+            Novice(other stuff, distracting stuff) vs. Expert(More frequent cycles)
+                        Novice -- Uses checklist as a guide (Can't do anything without reading first)
+                        Expert -- Uses checklist as verification of their flow/process
+            Age (possibly)
+
+Disturbances & Disturbance Tests (Demonstrate the limitations of the model)
+    --Wind (& Wobbliness)
+        Currently, lack of authority (and some missing control inputs) to stay back on track
+
+##Model
+    -- What are ways in which it is realistic/Not realistic
+        Approach vector maintenance laterally
+    -- Disturbances
+    -- Discussion Section of Paper, Future Directions Subsection
+        
+
+
+## Displaying Data
+    --Plot, (associated Video as a supplement)
+    -- Compute aggregate values (mean^2 error, etc, etc.)
+    --Roll, Possibly use Same display as localizer but with top and bottom as Roll limits (i.e. 90 degrees)
+
+##Action Items
+1. Get model as is to land at the "ideal" point
+
+2. Graph Production from the simulation
+    1. Dump Raw Data during simulation
+    2. Second peice of code, looks at raw data, produces the graphs/or the numbers that get pasted into excel
+    3. Create fancy graphs (The punchline of the story)
+    --- Slide with graphs that can make consistent comparisons
+    --- Novice, Expert, etc. -- What if games can be overlayed on top of that
+
+Timeline
+Complete draft April 29th
+Feedback a week later
+
+May 13th final draft
+
+

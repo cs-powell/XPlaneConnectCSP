@@ -212,7 +212,7 @@ class AircraftLandingModel(pyactr.ACTRModel):
         if(self.flare == False):
             yoke_pull = yoke_pull * 20
             # yoke_pull = 0.23
-            throttle = 0.4
+            throttle = 0.28
         if(self.flare == True):
             # yoke_pull = -yoke_pull
             yoke_pull = yoke_pull * 20

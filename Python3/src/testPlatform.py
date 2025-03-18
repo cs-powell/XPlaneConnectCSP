@@ -96,7 +96,9 @@ def ex():
         #Doing stuff In between Test SECOND INCREMENTS
         while(count < 1000000):
             #50 Millisecond Timesteps
+            # sleep(0.05)
             sleep(0.05)
+
             client.pauseSim(False) #Unpause
             # sleep(0.05) # Run 50 Milliseconds
             # client.pauseSim(True) # Pause Simulator
