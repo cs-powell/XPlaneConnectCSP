@@ -3,6 +3,7 @@ import xpc
 from cognitiveModel import AircraftLandingModel
 
 def ex():
+    
     print("X-Plane Connect example script")
     print("Setting up simulation")
     with xpc.XPlaneConnect() as client:
