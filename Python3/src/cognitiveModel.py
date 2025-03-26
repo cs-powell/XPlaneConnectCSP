@@ -298,38 +298,38 @@ class AircraftLandingModel(pyactr.ACTRModel):
         # print("In aircraft state")
         # print("Entered Update Aircraft State")
         # Retrieve current data from X-Plane
-        airspeed = self.client.getDREF("sim/cockpit2/gauges/indicators/airspeed_kts_pilot")
-        roll = self.client.getDREF("sim/cockpit2/gauges/indicators/roll_AHARS_deg_pilot")
-        heading = self.client.getDREF("sim/cockpit2/gauges/indicators/heading_AHARS_deg_mag_pilot")
-        descent_rate = self.client.getDREF("sim/flightmodel/position/vh_ind_fpm")
-        altitudeAGL = self.client.getDREF("sim/flightmodel/position/y_agl")
+        # airspeed = self.client.getDREF("sim/cockpit2/gauges/indicators/airspeed_kts_pilot")
+        # roll = self.client.getDREF("sim/cockpit2/gauges/indicators/roll_AHARS_deg_pilot")
+        # heading = self.client.getDREF("sim/cockpit2/gauges/indicators/heading_AHARS_deg_mag_pilot")
+        # descent_rate = self.client.getDREF("sim/flightmodel/position/vh_ind_fpm")
+        # altitudeAGL = self.client.getDREF("sim/flightmodel/position/y_agl")
 
-        pitch = self.client.getDREF("sim/flightmodel/position/true_theta")
+        # pitch = self.client.getDREF("sim/flightmodel/position/true_theta")
 
-        brake = self.client.getDREF("sim/cockpit2/controls/parking_brake_ratio")
-        wheelS = self.client.getDREF("sim/flightmodel2/gear/tire_rotation_speed_rad_sec")
-        wheelW = self.client.getDREF("sim/flightmodel/parts/tire_vrt_def_veh")
+        # brake = self.client.getDREF("sim/cockpit2/controls/parking_brake_ratio")
+        # wheelS = self.client.getDREF("sim/flightmodel2/gear/tire_rotation_speed_rad_sec")
+        # wheelW = self.client.getDREF("sim/flightmodel/parts/tire_vrt_def_veh")
 
       
        
-        self.airspeed = airspeed[0]
-        self.roll = roll[0]
-        self.heading = heading[0]
-        self.descent_rate = descent_rate[0]
-        self.altitude = altitudeAGL[0]
-        self.pitch = pitch[0]
-        self.wheelSpeed = wheelS[0]
-        self.wheelWeight = wheelW[0]
-        self.brakes = brake[0]
+        # self.airspeed = airspeed[0]
+        # self.roll = roll[0]
+        # self.heading = heading[0]
+        # self.descent_rate = descent_rate[0]
+        # self.altitude = altitudeAGL[0]
+        # self.pitch = pitch[0]
+        # self.wheelSpeed = wheelS[0]
+        # self.wheelWeight = wheelW[0]
+        # self.brakes = brake[0]
 
-        #Phase Change Indicator
-        wheelWeight = self.client.getDREF("sim/flightmodel/parts/tire_vrt_def_veh") #Strut deflection, Weight on the wheels
-        wheelRate = self.client.getDREF("sim/flightmodel2/gear/tire_rotation_speed_rad_sec") #Wheel Rotation Rate 
+        # #Phase Change Indicator
+        # wheelWeight = self.client.getDREF("sim/flightmodel/parts/tire_vrt_def_veh") #Strut deflection, Weight on the wheels
+        # wheelRate = self.client.getDREF("sim/flightmodel2/gear/tire_rotation_speed_rad_sec") #Wheel Rotation Rate 
 
         """
         Faster Method 
         """
-        # self.getAndLoadDREFS()
+        self.getAndLoadDREFS()
 
         if(self.altitude <= 20):
             self.flare = True
