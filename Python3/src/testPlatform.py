@@ -5,11 +5,10 @@ from cognitiveModel import AircraftLandingModel
 
 def ex():
 
-    print("X-Plane Connect example script")
+    print("Model Test: Xplane setting up connection")
     print("Setting up simulation")
     with xpc.XPlaneConnect() as client:
         # Verify connection
-        
         try:
             # If X-Plane does not respond to the request, a timeout error
             # will beff raised.
@@ -19,8 +18,7 @@ def ex():
             print("Exiting...")
             return
         cogModel = AircraftLandingModel(client)
-    
-        # # Set position of the player aircraft
+# # Set position of the player aircraft
         # print("Setting position")
         # #       Lat     Lon         Alt   Pitch Roll Yaw Gear
         # posi = [37.524, -122.06899, 2500, 0,    0,   0,  1]
@@ -66,6 +64,24 @@ def ex():
         #     ]
         # client.sendDATA(data)
 
+
+        """
+        Set orientation and Position 
+            16 - Angular Velocities
+            17 - PitchRoll and Headings
+            18 - Angle of Attack
+            20 - Latitude and Longitude
+        """
+        print("Setting orientation for test")
+        data = [\
+            [16,   -998, -998,   -998, -998, -998, -998, -998, -998],
+            [17,   -998, -998,   -998, -998, -998, -998, -998, -998],\
+            [18,   -998, -998,   -998, -998, -998, -998, -998, -998],\
+            [19,   -998, -998,   -998, -998, -998, -998, -998, -998],\
+            [20,   -998, -998,   -998, -998, -998, -998, -998, -998]\
+            ]
+        client.sendDATA(data)
+
         # Set control surfaces and throttle of the player aircraft using sendCTRL
         print("Setting controls")
         ctrl = [0.0, 0.0, 0.0, 0.0]
@@ -78,28 +94,21 @@ def ex():
         clockStart = time.time()
         #Doing stuff In between Test SECOND INCREMENTS
         while(count < 1000000):
-            clockStart = time.time()
-
-
+            clockStart = time.time() #START TIMER 
             client.pauseSim(True) # Pause Simulator
-            #Run Model (Send commands to simulator within this process)
+
+            #Run Model 
             cogModel.update_aircraft_state()
             cogModel.update_controls_simultaneously()
-            client.pauseSim(False) #Unpause
 
-            clockEnd = time.time()
+            client.pauseSim(False) #Unpause Simulator 
+            clockEnd = time.time() # STOP TIMER
             count+=1
-            print("Clock Time: " + str(clockEnd - clockStart))
-            sleep(0.05) # Run 50 Milliseconds
-            ##Would need to be logging data during the sleep time......but the code is "sleeping"....multithread?
-            #Repeat
-
-
-
-
+            print("Clock Time: " + str(clockEnd - clockStart)) ## LOG TIME TAKEN 
+            sleep(0.05) # LET Simulator Run 50 Milliseconds
 
             #
-        print("End of Python client example")
+        print("Model has finished running")
         #Copy data.txt to the cloudddddd using python magic and accurate filepaths
         
         input("Press any key to exit...")

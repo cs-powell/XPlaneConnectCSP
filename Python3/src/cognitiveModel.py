@@ -13,26 +13,25 @@ class scaleFactor():
 class AircraftLandingModel(pyactr.ACTRModel):
     def __init__(self,client):
         super().__init__()
-
-        # Initialize the declarative memory (DM)
-        # self.decmem.add( 
-        #     [
-        #         ("airspeed", 100), # Current airspeed (e.g., 100 knots)
-        #         ("roll", 0),  # Current roll (0 for wings level)
-        #         ("heading", 0),  # Current heading
-        #         ("descent_rate", 500),  # Current descent rate in fpm
-        #         ("target_airspeed", 80),  # Target airspeed during descent
-        #         ("target_roll", 0),  # Target roll (wings level)
-        #         ("target_heading", 90),  # Target heading (runway heading)
-        #         ("target_descent_rate", 500)  # Target descent rate (fpm)
-        #     ]  
-        # )
-
         self.client = client
-        # TODO: CHANGE TO GETDREFS, respect the runtime calculations.....didnt you learn your lesson on the algorithms midterm 
-        # TODO: Change sendDref to send DREFS 
-        # TODO: look for any rouge get/sendCTRL methods 
 
+        """
+        Setting DREF variables and loading into drefs array
+        """
+        airspeedDREF = "sim/cockpit2/gauges/indicators/airspeed_kts_pilot"
+        rollDREF = "sim/cockpit2/gauges/indicators/roll_AHARS_deg_pilot"
+        magneticHeadingDREF = "sim/cockpit2/gauges/indicators/heading_AHARS_deg_mag_pilot"
+        verticalSpeedDREF = "sim/flightmodel/position/vh_ind_fpm"
+        altitudeAGLDREF = "sim/flightmodel/position/y_agl"
+        pitchDREF = "sim/flightmodel/position/true_theta"
+        brakeDREF = "sim/cockpit2/controls/parking_brake_ratio"
+        wheelSpeedDREF = "sim/flightmodel2/gear/tire_rotation_speed_rad_sec"
+        wheelWeightDREF = "sim/flightmodel/parts/tire_vrt_def_veh"
+        self.sources = [airspeedDREF,rollDREF,magneticHeadingDREF,verticalSpeedDREF,altitudeAGLDREF,pitchDREF,brakeDREF,wheelSpeedDREF,wheelWeightDREF]
+
+        """
+        Initial Initialization of destination Variables and loading into destinations array
+        """
         airspeed = self.client.getDREF("sim/cockpit2/gauges/indicators/airspeed_kts_pilot")
         roll = self.client.getDREF("sim/cockpit2/gauges/indicators/roll_AHARS_deg_pilot")
         heading = self.client.getDREF("sim/cockpit2/gauges/indicators/heading_AHARS_deg_mag_pilot")
@@ -44,48 +43,37 @@ class AircraftLandingModel(pyactr.ACTRModel):
         wheelW = self.client.getDREF("sim/flightmodel/parts/tire_vrt_def_veh")
 
         
-
-        
-
-       
-        
-        # Update the model's declarative memory
-        # model.declarative_memory["airspeed"] = airspeed
-        # model.declarative_memory["roll"] = roll
-        # model.declarative_memory["heading"] = heading
-        # model.declarative_memory["descent_rate"] = descent_rate
-       
         self.airspeed = airspeed[0]
         self.roll = roll[0]
         self.heading = heading[0]
         self.descent_rate = descent_rate[0]
         self.altitude = altitude[0]
-        self.brakes = brake[0]
-        # print(wheelS)
-        self.wheelSpeed = wheelS[0]
-
-        self.wheelWeight = wheelW[0]
-       
-
-
-        #Flare Specific Parameters 
-        self.flare = False
         self.pitch = pitch[0]
-
-        #Rollout Specific Parameters
-        self.rollOut = False
+        self.brakes = brake[0]
+        self.wheelSpeed = wheelS[0]
+        self.wheelWeight = wheelW[0]        
+        self.destinations = [self.airspeed,self.roll,self.heading,self.descent_rate,self.altitude,self.pitch,self.brakes,self.wheelSpeed,self.wheelWeight]
         
-
-
-
-
+        """
+        Initial Initialization of target Values
+        """
         self.target_airspeed = 80
         self.target_roll = 0
         self.target_heading = self.heading #Track heading from initialization
         self.target_descent_rate = 500
+        self.target_altitude = -998
         self.target_pitch = 20
-
+        self.targets = [self.target_airspeed,self.target_roll,self.target_heading,self.target_descent_rate,self.target_altitude,self.target_pitch]
    
+
+        #State Flags (Boolean)  & Current State (Integer)
+        self.descent = False
+        self.flare = False
+        self.rollOut = False
+        self.currentState = 0
+        self.stateFlags = [self.descent,self.flare,self.rollOut]
+
+
         # Declare the state for previous values
         self.previous_airspeed = None
         self.previous_roll = None
@@ -107,6 +95,23 @@ class AircraftLandingModel(pyactr.ACTRModel):
         # self.Ki = 2  # Integral gain
 
 
+        """
+        Variable Atlas Schema: source => destination => target
+        """
+        # self.variableAtlas = list(xrange(1000))
+        # idx = 0
+        # while(idx < len(self.sources) - 1):
+        #     self.variableAtlas[0] = [self.sources[idx],self.destinations[idx],self.targets[idx]]
+        #     idx += 1
+        
+
+    def getAndLoadDREFS(self):
+        results = self.client.getDREFs(self.sources)
+        idx = 0
+        while(idx < len(results) - 2):
+            self.destinations[idx] = results[idx][0]
+            idx += 1
+        
 
     def printControls(self,calculated,errors,yokePull,yokeSteer,rudder,throttle):
         print("In print controls")
@@ -287,6 +292,9 @@ class AircraftLandingModel(pyactr.ACTRModel):
 
     # Update the model's DM based on X-Plane data
     def update_aircraft_state(self):
+        """
+        Slower Method 
+        """
         # print("In aircraft state")
         # print("Entered Update Aircraft State")
         # Retrieve current data from X-Plane
@@ -294,7 +302,6 @@ class AircraftLandingModel(pyactr.ACTRModel):
         roll = self.client.getDREF("sim/cockpit2/gauges/indicators/roll_AHARS_deg_pilot")
         heading = self.client.getDREF("sim/cockpit2/gauges/indicators/heading_AHARS_deg_mag_pilot")
         descent_rate = self.client.getDREF("sim/flightmodel/position/vh_ind_fpm")
-        # altitudeMSL = self.client.getDREF("sim/cockpit2/gauges/indicators/altitude_ft_pilot")
         altitudeAGL = self.client.getDREF("sim/flightmodel/position/y_agl")
 
         pitch = self.client.getDREF("sim/flightmodel/position/true_theta")
@@ -303,13 +310,7 @@ class AircraftLandingModel(pyactr.ACTRModel):
         wheelS = self.client.getDREF("sim/flightmodel2/gear/tire_rotation_speed_rad_sec")
         wheelW = self.client.getDREF("sim/flightmodel/parts/tire_vrt_def_veh")
 
-       
-        
-        # Update the model's declarative memory
-        # model.declarative_memory["airspeed"] = airspeed
-        # model.declarative_memory["roll"] = roll
-        # model.declarative_memory["heading"] = heading
-        # model.declarative_memory["descent_rate"] = descent_rate
+      
        
         self.airspeed = airspeed[0]
         self.roll = roll[0]
@@ -321,9 +322,14 @@ class AircraftLandingModel(pyactr.ACTRModel):
         self.wheelWeight = wheelW[0]
         self.brakes = brake[0]
 
-        ##Phase Change Indicator
-        # wheelWeight = self.client.getDREF("sim/flightmodel/parts/tire_vrt_def_veh") #Strut deflection, Weight on the wheels
-        # wheelRate = self.client.getDREF("sim/flightmodel2/gear/tire_rotation_speed_rad_sec") #Wheel Rotation Rate 
+        #Phase Change Indicator
+        wheelWeight = self.client.getDREF("sim/flightmodel/parts/tire_vrt_def_veh") #Strut deflection, Weight on the wheels
+        wheelRate = self.client.getDREF("sim/flightmodel2/gear/tire_rotation_speed_rad_sec") #Wheel Rotation Rate 
+
+        """
+        Faster Method 
+        """
+        # self.getAndLoadDREFS()
 
         if(self.altitude <= 20):
             self.flare = True
