@@ -37,9 +37,9 @@ Disturbances & Disturbance Tests (Demonstrate the limitations of the model)
 1. Get model as is to land at the "ideal" point
 
 2. Graph Production from the simulation
-    1. Dump Raw Data during simulation
+    1. Dump Raw Data during simulation (achieved) 
     2. Second peice of code, looks at raw data, produces the graphs/or the numbers that get pasted into excel
-    3. Create fancy graphs (The punchline of the story)
+    3. Create fancy graphs (The punchline of the story) 
     --- Slide with graphs that can make consistent comparisons
     --- Novice, Expert, etc. -- What if games can be overlayed on top of that
 

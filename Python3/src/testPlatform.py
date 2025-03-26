@@ -1,9 +1,10 @@
+import time
 from time import sleep
 import xpc
 from cognitiveModel import AircraftLandingModel
 
 def ex():
-    
+
     print("X-Plane Connect example script")
     print("Setting up simulation")
     with xpc.XPlaneConnect() as client:
@@ -17,7 +18,6 @@ def ex():
             print("Error establishing connection to X-Plane.")
             print("Exiting...")
             return
-
         cogModel = AircraftLandingModel(client)
     
         # # Set position of the player aircraft
@@ -43,96 +43,65 @@ def ex():
 
 
 
+        # client.pauseSim(True)
+        # # Set position of the player aircraft
+        # print("Setting Experiment Position: Denver Airport Runway")
+        # #       Lat     Lon         Alt   Pitch Roll Yaw Gear
+        # posi = [39.945, -104.70, 2500, 0,    0,   0,  1] #3NM Approach for Denver Intl Runway 16R (16,000 feet)
+        # client.sendPOSI(posi)
+        # quat = (1.0,0.0,0.0,173.0)
+        # quatDref = "sim/flightmodel/position/q"
+        # client.sendDREF(quatDref,quat)
+        # speed = (1.0,0.0,0.0,173.0)
+        # client.sendDREF("sim/flightmodel/position/indicated_airspeed",speed)
+        # client.pauseSim(False)
+
+
+        # # Set angle of attack, velocity, and orientation using the DATA command
+        # print("Setting orientation")
+        # data = [\
+        #     [18,   0, -998,   0, -998, -998, -998, -998, -998],\
+        #     [ 3, 130,  130, 130,  130, -998, -998, -998, -998],\
+        #     [16,   0,    0,   0, -998, -998, -998, -998, -998]\
+        #     ]
+        # client.sendDATA(data)
 
         # Set control surfaces and throttle of the player aircraft using sendCTRL
         print("Setting controls")
         ctrl = [0.0, 0.0, 0.0, 0.0]
         client.sendCTRL(ctrl)
         # Pitch, Roll, Rudder, Throttle
-
         # Pause the sim
         client.pauseSim(False)
-
         count = 0
         innercount = 0
-        #ONE SECOND INCREMENTS
-        # while(count < 1000000 ):
-        #     client.pauseSim(False)
-        #     sleep(1.0)
-        #     print("Pausing" + str(count))
-        #     client.pauseSim(True)
-        #     sleep(1.0)
-        #     count+=1
-
-        #0.1 SECOND INCREMENTS
-        # while(count < 1000000 ):
-        #     client.pauseSim(False)
-        #     sleep(0.1)
-        #     print("Pausing" + str(count))
-        #     client.pauseSim(True)
-        #     sleep(0.1)
-        #     count+=1
-
-         #0.001 SECOND INCREMENTS
-        # while(count < 1000000 ):
-        #     client.pauseSim(False)
-        #     sleep(0.001)
-        #     print("Pausing" + str(count))
-        #     client.pauseSim(True)
-        #     sleep(0.001)
-        #     count+=1
-
-        #0.00001 SECOND INCREMENTS
-        # while(count < 1000000 ):
-        #     client.pauseSim(False)
-        #     sleep(0.00001)
-        #     print("Pausing" + str(count))
-        #     client.pauseSim(True)
-        #     sleep(0.00001)
-        #     count+=1
-
-
-        # sim/operation/override/override_timestep 
-
+        clockStart = time.time()
         #Doing stuff In between Test SECOND INCREMENTS
         while(count < 1000000):
-            #50 Millisecond Timesteps
-            # sleep(0.05)
-            sleep(0.05)
+            clockStart = time.time()
 
-            client.pauseSim(False) #Unpause
-            # sleep(0.05) # Run 50 Milliseconds
-            # client.pauseSim(True) # Pause Simulator
+
+            client.pauseSim(True) # Pause Simulator
             #Run Model (Send commands to simulator within this process)
-            ####Insert Model Here, some assembly required#######
             cogModel.update_aircraft_state()
             cogModel.update_controls_simultaneously()
-                #Please work........no excuses now
-            #Repeat
-            # print("Advanced 50 Milliseconds: Step #" + str(count))
+            client.pauseSim(False) #Unpause
+
+            clockEnd = time.time()
             count+=1
+            print("Clock Time: " + str(clockEnd - clockStart))
+            sleep(0.05) # Run 50 Milliseconds
+            ##Would need to be logging data during the sleep time......but the code is "sleeping"....multithread?
+            #Repeat
 
 
 
 
 
-            # print("Pausing" + str(count))
-            # innercount = 0
-            # client.pauseSim(True)
-            # sleep(0.05) #Simulate 50 milliseconds
-
-            # sleep(0.01) #Simulate 50 milliseconds
-            # # while(innercount < 100000):
-            # #     # print("Doing Stuff" + str(innercount)) # Simulates the model running and computing for 50 Milliseconds maybe?
-                
-            # #     innercount+=1
-            # # else:
-            # client.pauseSim(False)
-            # print("Exit Pause" + str(count))
-            # sleep(0.5)
-            # count+=1
-
+            #
         print("End of Python client example")
+        #Copy data.txt to the cloudddddd using python magic and accurate filepaths
+        
         input("Press any key to exit...")
 
 if __name__ == "__main__":

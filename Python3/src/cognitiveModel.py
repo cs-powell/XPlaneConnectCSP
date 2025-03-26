@@ -29,6 +29,10 @@ class AircraftLandingModel(pyactr.ACTRModel):
         # )
 
         self.client = client
+        # TODO: CHANGE TO GETDREFS, respect the runtime calculations.....didnt you learn your lesson on the algorithms midterm 
+        # TODO: Change sendDref to send DREFS 
+        # TODO: look for any rouge get/sendCTRL methods 
+
         airspeed = self.client.getDREF("sim/cockpit2/gauges/indicators/airspeed_kts_pilot")
         roll = self.client.getDREF("sim/cockpit2/gauges/indicators/roll_AHARS_deg_pilot")
         heading = self.client.getDREF("sim/cockpit2/gauges/indicators/heading_AHARS_deg_mag_pilot")
@@ -39,6 +43,7 @@ class AircraftLandingModel(pyactr.ACTRModel):
         wheelS = self.client.getDREF("sim/flightmodel2/gear/tire_rotation_speed_rad_sec")
         wheelW = self.client.getDREF("sim/flightmodel/parts/tire_vrt_def_veh")
 
+        
 
         
 
@@ -243,7 +248,7 @@ class AircraftLandingModel(pyactr.ACTRModel):
 
         #Switch Target for Pitch to Local Pitch Axis (ex. +10 Degrees nose up)
         
-        self.printControls(1,0,yoke_pull,yoke_steer,rudder,throttle)
+        # self.printControls(1,0,yoke_pull,yoke_steer,rudder,throttle) #PRINT CONTROLS 
         # Send all controls simultaneously to X-Plane
         self.send_controls_to_xplane(yoke_pull, yoke_steer, rudder, throttle)
 
@@ -274,7 +279,7 @@ class AircraftLandingModel(pyactr.ACTRModel):
             #Hit the Brakes
             brakedref = "sim/cockpit2/controls/parking_brake_ratio"
             brake = 1
-            self.client.sendDREF(brakedref,brake)
+            self.client.sendDREF(brakedref,brake) 
 
         self.client.sendCTRL([yoke_pull, yoke_steer, rudder, throttle, -998, -998])  # Control inputs: [yoke_pull, yoke_steer, rudder, throttle]
 
@@ -333,7 +338,9 @@ class AircraftLandingModel(pyactr.ACTRModel):
             print("Hit the brakes")
 
         
-  
+    # def logData(self):
+
+
 
 
     # def rules(self):
