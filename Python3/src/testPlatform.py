@@ -2,8 +2,9 @@ import time
 from time import sleep
 import xpc
 from cognitiveModel import AircraftLandingModel
+import shutil
 
-def ex():
+def runExperiment():
 
     print("Model Test: Xplane setting up connection")
     print("Setting up simulation")
@@ -64,38 +65,68 @@ def ex():
         #     ]
         # client.sendDATA(data)
 
-
+        groundLevel = 5434
+        offset = 4000
+        altitudeFEET = groundLevel + offset
+        altitudeMETERS = altitudeFEET/3.281
+        altitude = altitudeMETERS
         """
-        Set orientation and Position 
+        Set orientation and Position
+            1 - Time 
+            3- Speeds: [3,   V-indicated, 3,   2, 2, -998, VindMPH, V trueMPHas, vtrue MPHgs],\
             16 - Angular Velocities
-            17 - PitchRoll and Headings
+            17 - PitchRoll and Headings: [17,   Pitch, Roll,   Heading True, -998, -998, -998, -998, -998],\   
             18 - Angle of Attack
             20 - Latitude and Longitude
         """
-        print("Setting orientation for test")
-        data = [\
-            [16,   -998, -998,   -998, -998, -998, -998, -998, -998],
-            [17,   -998, -998,   -998, -998, -998, -998, -998, -998],\
-            [18,   -998, -998,   -998, -998, -998, -998, -998, -998],\
-            [19,   -998, -998,   -998, -998, -998, -998, -998, -998],\
-            [20,   -998, -998,   -998, -998, -998, -998, -998, -998]\
-            ]
-        client.sendDATA(data)
+        location1 =  [20,   groundLevel + 3000, 39.96239,  -104.69713, -998, -998, -998, -998, -998]
+        testLocation = [20,   -998, 27.20579,  -80.08621, altitude, -998, -998, -998, -998] # 27.20579°N/80.08621°W
+        
+        kias = -998
+        keas = -998
+        ktas = -998
+        ktgs = -998
+        mph = -998
+        mphas = 80
+        mphgs = 80
 
+        print("Setting orientation for test")
+        # client.sendDREF("sim/operation/override/override_planepath",1)
+        # client.pauseSim(True)
+
+        # client.sendDREF("sim/flightmodel/position/local_y",2000)
+        # client.sendDREFs(["sim/flightmodel/position/P","sim/flightmodel/position/Q","sim/flightmodel/position/R"],[0,0,0])
+        # client.sendDREF("sim/flightmodel/position/q",[0.3, 0, 0, 0.6])
+
+        # data = [\
+        #     [3,   -998, -998,   -998, -998, -998, -998, mphas, mphgs],\
+        #     [16,   0, 0,   0, -998, -998, -998, -998, -998],\
+        #     [17,   0, 0,   0, -998, -998, -998, -998, -998],\
+        #     [18,   -998, -998,   -998, -998, -998, -998, -998, -998],\
+        #     [19,   -998, -998,   -998, -998, -998, -998, -998, -998],\
+        #     testLocation\
+        #     ]
+        # client.sendDATA(data)
+        # client.sendDREF("sim/operation/override/override_planepath",0)
+
+        client.pauseSim(False)
+
+        # 39.96239°N/104.69713°W
+        runModel = True
         # Set control surfaces and throttle of the player aircraft using sendCTRL
         print("Setting controls")
         ctrl = [0.0, 0.0, 0.0, 0.0]
         client.sendCTRL(ctrl)
         # Pitch, Roll, Rudder, Throttle
         # Pause the sim
-        client.pauseSim(False)
+        # client.pauseSim(False)
         count = 0
         innercount = 0
         clockStart = time.time()
         #Doing stuff In between Test SECOND INCREMENTS
-        while(count < 1000000):
+        while(count < 1000000 and runModel):
             clockStart = time.time() #START TIMER 
-            client.pauseSim(True) # Pause Simulator
+            # client.pauseSim(True) # Pause Simulator
 
             #Run Model 
             cogModel.update_aircraft_state()
@@ -107,11 +138,21 @@ def ex():
             print("Clock Time: " + str(clockEnd - clockStart)) ## LOG TIME TAKEN 
             sleep(0.05) # LET Simulator Run 50 Milliseconds
 
-            #
         print("Model has finished running")
         #Copy data.txt to the cloudddddd using python magic and accurate filepaths
+        shutil.copy("/Users/flyingtopher/X-Plane 11/Data.txt", "/Users/flyingtopher/Desktop/Test Destination")
         
         input("Press any key to exit...")
+        ## Copy Data.txt to the repository file for analysis
+
+        ##Reset the sim with the keyboard shortcut (wrapper around model that waits for reconnection)
+        
+def ex():
+    count = 0
+    while(count<2):
+        runExperiment()
+        count+=1
+    print("Experiment Battery Complete")
 
 if __name__ == "__main__":
     ex()

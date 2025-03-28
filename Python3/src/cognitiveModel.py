@@ -284,105 +284,35 @@ class AircraftLandingModel(pyactr.ACTRModel):
             #Hit the Brakes
             brakedref = "sim/cockpit2/controls/parking_brake_ratio"
             brake = 1
-            self.client.sendDREF(brakedref,brake) 
+            self.client.sendDREF(brakedref,brake)
 
         self.client.sendCTRL([yoke_pull, yoke_steer, rudder, throttle, -998, -998])  # Control inputs: [yoke_pull, yoke_steer, rudder, throttle]
 
-
-
-    # Update the model's DM based on X-Plane data
-    def update_aircraft_state(self):
-        """
-        Slower Method 
-        """
-        # print("In aircraft state")
-        # print("Entered Update Aircraft State")
-        # Retrieve current data from X-Plane
-        # airspeed = self.client.getDREF("sim/cockpit2/gauges/indicators/airspeed_kts_pilot")
-        # roll = self.client.getDREF("sim/cockpit2/gauges/indicators/roll_AHARS_deg_pilot")
-        # heading = self.client.getDREF("sim/cockpit2/gauges/indicators/heading_AHARS_deg_mag_pilot")
-        # descent_rate = self.client.getDREF("sim/flightmodel/position/vh_ind_fpm")
-        # altitudeAGL = self.client.getDREF("sim/flightmodel/position/y_agl")
-
-        # pitch = self.client.getDREF("sim/flightmodel/position/true_theta")
-
-        # brake = self.client.getDREF("sim/cockpit2/controls/parking_brake_ratio")
-        # wheelS = self.client.getDREF("sim/flightmodel2/gear/tire_rotation_speed_rad_sec")
-        # wheelW = self.client.getDREF("sim/flightmodel/parts/tire_vrt_def_veh")
-
-      
-       
-        # self.airspeed = airspeed[0]
-        # self.roll = roll[0]
-        # self.heading = heading[0]
-        # self.descent_rate = descent_rate[0]
-        # self.altitude = altitudeAGL[0]
-        # self.pitch = pitch[0]
-        # self.wheelSpeed = wheelS[0]
-        # self.wheelWeight = wheelW[0]
-        # self.brakes = brake[0]
-
-        # #Phase Change Indicator
-        # wheelWeight = self.client.getDREF("sim/flightmodel/parts/tire_vrt_def_veh") #Strut deflection, Weight on the wheels
-        # wheelRate = self.client.getDREF("sim/flightmodel2/gear/tire_rotation_speed_rad_sec") #Wheel Rotation Rate 
-
-        """
-        Faster Method 
-        """
-        self.getAndLoadDREFS()
+    def conditionChecks(self):
+        if(self.wheelWeight > 0.01 and self.wheelSpeed > 1):
+            #Two Parameters to Confirm Touchdown and wheel contact
+            # "sim/flightmodel/parts/tire_vrt_def_veh" #Gear Strut Deflection (Weight on wheels)
+            # "sim/flightmodel2/gear/tire_rotation_rate_rad_sec" #Tire Rotation Rate
+            self.rollOut = True
+            print("Hit the brakes")
 
         if(self.altitude <= 20):
             self.flare = True
             self.Ki = 0.01  ## Increase Control Authority to compensate for decreasing airspeed
             print("Altitude < 500; Flare Set True")
+        
+        
 
-        if(self.wheelWeight > 0.01 and self.wheelSpeed > 1):
-            #Two Parameters to Confirm Touchdown and wheel contact
-            # "sim/flightmodel/parts/tire_vrt_def_veh" #Gear Strut Deflection (Weight on wheels)
-            # "sim/flightmodel2/gear/tire_rotation_rate_rad_sec" #Tire Rotation Rate 
-            self.rollOut = True
-            print("Hit the brakes")
+    # Update the model's DM based on X-Plane data
+    def update_aircraft_state(self):
+        """
+        Faster Method 
+        """
+        self.getAndLoadDREFS()
+        self.conditionChecks()
+        
+
+        
 
         
     # def logData(self):
-
-
-
-
-    # def rules(self):
-    #     """
-    #     Define the rules for descent control using proportional-integral control for all controls at once.
-    #     """
-    #     return [
-    #         # Rule to adjust all controls simultaneously based on PI control for each parameter
-    #         pyactr.Production(
-    #             condition=pyactr.Condition("airspeed", "airspeed") &
-    #                       pyactr.Condition("roll", "roll") &
-    #                       pyactr.Condition("heading", "heading") &
-    #                       pyactr.Condition("descent_rate", "descent_rate") &
-    #                       pyactr.Condition("target_airspeed", "target_airspeed") &
-    #                       pyactr.Condition("target_roll", "target_roll") &
-    #                       pyactr.Condition("target_heading", "target_heading") &
-    #                       pyactr.Condition("target_descent_rate", "target_descent_rate"),
-    #             action=self.update_controls_simultaneously(),
-    #         ),
-    #     ]
-
-
-# # Function to get the current dataref value for a given parameter
-# def getDref(parameter_name):
-#     # Depending on the parameter name, you would query X-Plane datarefs
-#     if parameter_name == "Airspeed":
-#         # Get airspeed dataref
-#         return client.getData([DATAREF_AIRSPEED])
-#     elif parameter_name == "Roll":
-#         # Get roll angle dataref
-#         return client.getData([DATAREF_ROLL])
-#     elif parameter_name == "Hdg":
-#         # Get heading dataref
-#         return client.getData([DATAREF_HEADING])
-#     elif parameter_name == "DescentRate":
-#         # Get descent rate dataref
-#         return client.getData([DATAREF_DESCENT_RATE])
-
-

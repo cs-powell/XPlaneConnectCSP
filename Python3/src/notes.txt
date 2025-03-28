@@ -19,6 +19,7 @@ Qualitative
 Disturbances & Disturbance Tests (Demonstrate the limitations of the model)
     --Wind (& Wobbliness)
         Currently, lack of authority (and some missing control inputs) to stay back on track
+    -- Wind, Gusting Wind, Turbulence(Rough Air), 
 
 ##Model
     -- What are ways in which it is realistic/Not realistic
