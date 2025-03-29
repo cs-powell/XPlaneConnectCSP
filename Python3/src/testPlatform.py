@@ -1,10 +1,11 @@
+import datetime
 import time
 from time import sleep
 import xpc
 from cognitiveModel import AircraftLandingModel
 import shutil
 
-def runExperiment():
+def runExperiment(title):
 
     print("Model Test: Xplane setting up connection")
     print("Setting up simulation")
@@ -39,8 +40,6 @@ def runExperiment():
         #     [16,   0,    0,   0, -998, -998, -998, -998, -998]\
         #     ]
         # client.sendDATA(data)
-
-
 
         # client.pauseSim(True)
         # # Set position of the player aircraft
@@ -124,33 +123,37 @@ def runExperiment():
         innercount = 0
         clockStart = time.time()
         #Doing stuff In between Test SECOND INCREMENTS
-        while(count < 1000000 and runModel):
-            clockStart = time.time() #START TIMER 
+        while(cogModel.simulationStatus() and runModel):
+            clockStart = time.time() #START TIMER
             # client.pauseSim(True) # Pause Simulator
-
             #Run Model 
             cogModel.update_aircraft_state()
             cogModel.update_controls_simultaneously()
-
-            client.pauseSim(False) #Unpause Simulator 
+            client.pauseSim(False) #Unpause Simulator
             clockEnd = time.time() # STOP TIMER
             count+=1
-            print("Clock Time: " + str(clockEnd - clockStart)) ## LOG TIME TAKEN 
+            # print("Clock Time: " + str(clockEnd - clockStart)) ## LOG TIME TAKEN 
             sleep(0.05) # LET Simulator Run 50 Milliseconds
 
         print("Model has finished running")
         #Copy data.txt to the cloudddddd using python magic and accurate filepaths
-        shutil.copy("/Users/flyingtopher/X-Plane 11/Data.txt", "/Users/flyingtopher/Desktop/Test Destination")
+        now = datetime.datetime
+        shutil.copy("/Users/flyingtopher/X-Plane 11/Data.txt", "/Users/flyingtopher/Desktop/Test Destination/" + title + "_" + str(now.now()) + "_" + ".txt")
         
         input("Press any key to exit...")
         ## Copy Data.txt to the repository file for analysis
-
         ##Reset the sim with the keyboard shortcut (wrapper around model that waits for reconnection)
         
 def ex():
+    ##Store Experiment Battery
+
+    ##Different paramters on every run of the model
+    ## Nested loops: 
+        ##wind conditions, pilot conditions
+    title = input("Please Enter Experiment Set Title, leave blank for trial runs")
     count = 0
     while(count<2):
-        runExperiment()
+        runExperiment(title)
         count+=1
     print("Experiment Battery Complete")
 

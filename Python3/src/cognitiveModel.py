@@ -14,6 +14,8 @@ class AircraftLandingModel(pyactr.ACTRModel):
     def __init__(self,client):
         super().__init__()
         self.client = client
+        self.inProgress = True
+        self.printControlsFlag = False
 
         """
         Setting DREF variables and loading into drefs array
@@ -108,8 +110,12 @@ class AircraftLandingModel(pyactr.ACTRModel):
     def getAndLoadDREFS(self):
         results = self.client.getDREFs(self.sources)
         idx = 0
-        while(idx < len(results) - 2):
+        while(idx < len(results) - 2):    
             self.destinations[idx] = results[idx][0]
+            if(idx == 1):
+                print("getDrefs: " + str(results[idx][0]))
+                print("current destination: " + str(self.destinations[idx]))
+                print("current main Airspeed: " + str(self.airspeed))
             idx += 1
         
 
@@ -252,8 +258,8 @@ class AircraftLandingModel(pyactr.ACTRModel):
 
 
         #Switch Target for Pitch to Local Pitch Axis (ex. +10 Degrees nose up)
-        
-        # self.printControls(1,0,yoke_pull,yoke_steer,rudder,throttle) #PRINT CONTROLS 
+        if(self.printControlsFlag):
+            self.printControls(1,0,yoke_pull,yoke_steer,rudder,throttle) #PRINT CONTROLS 
         # Send all controls simultaneously to X-Plane
         self.send_controls_to_xplane(yoke_pull, yoke_steer, rudder, throttle)
 
@@ -301,6 +307,11 @@ class AircraftLandingModel(pyactr.ACTRModel):
             self.Ki = 0.01  ## Increase Control Authority to compensate for decreasing airspeed
             print("Altitude < 500; Flare Set True")
         
+        if(self.wheelWeight > 0.01 and self.wheelSpeed > 1 and self.airspeed < 1 and self.brakes == 1):
+            self.inProgress = False
+    
+    def simulationStatus(self):
+        return self.inProgress
         
 
     # Update the model's DM based on X-Plane data

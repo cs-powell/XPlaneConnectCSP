@@ -51,3 +51,11 @@ Feedback a week later
 May 13th final draft
 
 
+
+
+
+
+##3/28/25
+Overhead of unpausing/pausing the simulator
+Simulating without Drawing the call:
+https://forums.x-plane.org/index.php?/forums/topic/227426-run-x-plane-without-rendering-model/
