@@ -29,8 +29,19 @@ class AircraftLandingModel(pyactr.ACTRModel):
         brakeDREF = "sim/cockpit2/controls/parking_brake_ratio"
         wheelSpeedDREF = "sim/flightmodel2/gear/tire_rotation_speed_rad_sec"
         wheelWeightDREF = "sim/flightmodel/parts/tire_vrt_def_veh"
-        self.sources = [airspeedDREF,rollDREF,magneticHeadingDREF,verticalSpeedDREF,altitudeAGLDREF,pitchDREF,brakeDREF,wheelSpeedDREF,wheelWeightDREF]
+        # self.sources = [airspeedDREF,rollDREF,magneticHeadingDREF,verticalSpeedDREF,altitudeAGLDREF,pitchDREF,brakeDREF,wheelSpeedDREF,wheelWeightDREF]
 
+        self.sources = {
+            "airspeed" : airspeedDREF,
+            "roll" : rollDREF,
+            "heading" : magneticHeadingDREF,
+            "verticalSpeed" : verticalSpeedDREF,
+            "altitude": altitudeAGLDREF,
+            "pitch" : pitchDREF,
+            "brake": brakeDREF,
+            "wheelSpeed": wheelSpeedDREF,
+            "wheelWeight": wheelWeightDREF
+        }
         """
         Initial Initialization of destination Variables and loading into destinations array
         """
@@ -54,8 +65,19 @@ class AircraftLandingModel(pyactr.ACTRModel):
         self.brakes = brake[0]
         self.wheelSpeed = wheelS[0]
         self.wheelWeight = wheelW[0]        
-        self.destinations = [self.airspeed,self.roll,self.heading,self.descent_rate,self.altitude,self.pitch,self.brakes,self.wheelSpeed,self.wheelWeight]
+        # self.destinations = [self.airspeed,self.roll,self.heading,self.descent_rate,self.altitude,self.pitch,self.brakes,self.wheelSpeed,self.wheelWeight]
         
+        self.destinations = {
+            "airspeed" : self.airspeed,
+            "roll" : self.roll,
+            "heading" : self.heading,
+            "verticalSpeed" : self.descent_rate,
+            "altitude": self.altitude,
+            "pitch" : self.pitch,
+            "brake": self.brakes,
+            "wheelSpeed": self.wheelSpeed,
+            "wheelWeight": self.wheelWeight
+        }
         """
         Initial Initialization of target Values
         """
@@ -105,18 +127,26 @@ class AircraftLandingModel(pyactr.ACTRModel):
         # while(idx < len(self.sources) - 1):
         #     self.variableAtlas[0] = [self.sources[idx],self.destinations[idx],self.targets[idx]]
         #     idx += 1
-        
+    def reassignClient(self,newClient):
+        self.client = newClient
 
     def getAndLoadDREFS(self):
-        results = self.client.getDREFs(self.sources)
+        results = self.client.getDREFs(self.sources.values())
         idx = 0
-        while(idx < len(results) - 2):    
-            self.destinations[idx] = results[idx][0]
-            if(idx == 1):
-                print("getDrefs: " + str(results[idx][0]))
-                print("current destination: " + str(self.destinations[idx]))
-                print("current main Airspeed: " + str(self.airspeed))
-            idx += 1
+        for key in self.sources:
+            self.destinations[key] = results[idx]
+            idx+=1
+        print("getDrefs: " + str(results[1][0]))
+        print("current destination: " + str(self.destinations["airspeed"]))
+        print("current main Airspeed: " + str(self.airspeed))
+
+        # while(idx < len(results) - 2):    
+        #     self.destinations[idx] = results[idx][0]
+        #     if(idx == 1):
+        #         print("getDrefs: " + str(results[idx][0]))
+        #         print("current destination: " + str(self.destinations[idx]))
+        #         print("current main Airspeed: " + str(self.airspeed))
+        #     idx += 1
         
 
     def printControls(self,calculated,errors,yokePull,yokeSteer,rudder,throttle):
@@ -129,7 +159,7 @@ class AircraftLandingModel(pyactr.ACTRModel):
             # print("*Parameter,Target,Current,Throttle:       " + "Descent Rate, " + str(self.target_descent_rate) + "," +  str(self.descent_rate)+ "," + str(throttle))
             parameter = ["Airspeed","Roll","Heading","Descent Rate","Altitude","Flare: Pitch", "Brakes: Wheel Speed", "Brakes: Wheel Weight"]
             target =  [str(round(self.target_airspeed)),str(round(self.target_roll)),str(round(self.target_heading,3)),str(round(self.target_descent_rate,3)),str(round(self.altitude,3)),str(round(self.target_pitch,3)),0, 0]
-            current = [str(round(self.airspeed,3)),str(round(self.roll,3)),str(round(self.heading,3)),str(round(self.descent_rate,3)),str(round(self.altitude,3)),str(round(self.pitch,3)),str(round(self.wheelSpeed,3)),str(round(self.wheelWeight,3))]
+            current = [str(round(self.destinations["airspeed"],3)),str(round(self.roll,3)),str(round(self.heading,3)),str(round(self.descent_rate,3)),str(round(self.altitude,3)),str(round(self.pitch,3)),str(round(self.wheelSpeed,3)),str(round(self.wheelWeight,3))]
             controlVal = [str(round(yokePull,3)),str(round(yokeSteer,3)),str(round(rudder,3)),str(round(throttle,3)),str(round(self.altitude,3)),str(self.flare),str(round(self.brakes,3)),str(round(self.brakes,3))]
 
             header_row = "{:<20} {:<20} {:<20} {:>10}"
@@ -307,7 +337,7 @@ class AircraftLandingModel(pyactr.ACTRModel):
             self.Ki = 0.01  ## Increase Control Authority to compensate for decreasing airspeed
             print("Altitude < 500; Flare Set True")
         
-        if(self.wheelWeight > 0.01 and self.wheelSpeed > 1 and self.airspeed < 1 and self.brakes == 1):
+        if(self.wheelWeight > 0.01 and self.wheelSpeed > 1 and self.destinations["airspeed"] < 1 and self.brakes == 1):
             self.inProgress = False
     
     def simulationStatus(self):
