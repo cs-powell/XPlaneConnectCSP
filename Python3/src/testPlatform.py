@@ -1,4 +1,5 @@
 import datetime
+import os
 import time
 from time import sleep
 import xpc
@@ -12,7 +13,8 @@ def runExperiment(title):
     startTime = 0
     endTime = 0
     difference = endTime - startTime
-    while(difference < 10):
+    experimentLive = True
+    while(difference < 3 and experimentLive):
         print("Time Elapsed: -----> " + str(difference))
         try:
             with xpc.XPlaneConnect() as client:
@@ -25,7 +27,7 @@ def runExperiment(title):
                 #     print("Error establishing connection to X-Plane.")
                 #     print("Exiting...")
                 #     return
-                cogModel = AircraftLandingModel(client)
+                cogModel = AircraftLandingModel(client,True)
             # # Set position of the player aircraft
                 # print("Setting position")
                 # #       Lat     Lon         Alt   Pitch Roll Yaw Gear
@@ -117,11 +119,11 @@ def runExperiment(title):
                 client.pauseSim(False)
 
                 # 39.96239°N/104.69713°W
-                runModel = True
-                # Set control surfaces and throttle of the player aircraft using sendCTRL
+                #                 # Set control surfaces and throttle of the player aircraft using sendCTRL
                 print("Setting controls")
                 ctrl = [0.0, 0.0, 0.0, 0.0]
                 client.sendCTRL(ctrl)
+                print("past setting controls")
                 # Pitch, Roll, Rudder, Throttle
                 # Pause the sim
                 # client.pauseSim(False)
@@ -130,11 +132,15 @@ def runExperiment(title):
                 clockStart = time.time()
                 #Doing stuff In between Test SECOND INCREMENTS
                 retry = 0
-                while(cogModel.simulationStatus() and runModel and retry < 50):
+                while(cogModel.simulationStatus()):
+                    # print("Start of innerwhile loop")
                     clockStart = time.time() #START TIMER
                     # client.pauseSim(True) # Pause Simulator
                     #Run Model
+                    # print("----------------> 1 <")
                     cogModel.update_aircraft_state()
+                    # print("----------------> 2 <")
+
                     cogModel.update_controls_simultaneously()
                     client.pauseSim(False) #Unpause Simulator
                     clockEnd = time.time() # STOP TIMER
@@ -184,31 +190,38 @@ def runExperiment(title):
                         #                  print("Breaking out of Timeout exception loop")
                         #                  break
                     startTime = time.time()
+                    experimentLive = cogModel.simulationStatus()
         except:
             print("except detected")
             endTime = time.time()
+            print("Start Time:" + str(startTime))
+            print("End Time:" + str(endTime))
             difference = endTime - startTime
             continue
 
+    if(difference >= 3):
+        print("Timeout[" + str(difference) +"]:"+"Error, please run test again")
+    else: 
+        print("Model has finished running")
 
-    print("Model has finished running")
     #Copy data.txt to the cloudddddd using python magic and accurate filepaths
     now = datetime.datetime
     shutil.copy("/Users/flyingtopher/X-Plane 11/Data.txt", "/Users/flyingtopher/Desktop/Test Destination/" + title + "_" + str(now.now()) + "_" + ".txt")
-        
+    print("CLEAN UP: Data File Copied and saved")
+    os.remove("/Users/flyingtopher/X-Plane 11/Data.txt") 
+    print("CLEAN UP: Data File Deleted and Reset")
     input("Press any key to exit...")
-    ## Copy Data.txt to the repository file for analysis
     ##Reset the sim with the keyboard shortcut (wrapper around model that waits for reconnection)
         
 def ex():
     ##Store Experiment Battery
-
     ##Different paramters on every run of the model
     ## Nested loops: 
         ##wind conditions, pilot conditions
     title = input("Please Enter Experiment Set Title, leave blank for trial runs")
     count = 0
-    while(count<1):
+    while(count<2):
+        input("Press Enter to Start Experiment #" + str(count) + ": ")
         runExperiment(title)
         count+=1
     print("Experiment Battery Complete")

@@ -11,11 +11,11 @@ class scaleFactor():
 
 ###Define variables/parameters for aircraft class/category : Wisdom of Raju 
 class AircraftLandingModel(pyactr.ACTRModel):
-    def __init__(self,client):
+    def __init__(self,client,printFlag):
         super().__init__()
         self.client = client
         self.inProgress = True
-        self.printControlsFlag = False
+        self.printControlsFlag = printFlag
 
         """
         Setting DREF variables and loading into drefs array
@@ -35,13 +35,14 @@ class AircraftLandingModel(pyactr.ACTRModel):
             "airspeed" : airspeedDREF,
             "roll" : rollDREF,
             "heading" : magneticHeadingDREF,
-            "verticalSpeed" : verticalSpeedDREF,
+            "vertical speed" : verticalSpeedDREF,
             "altitude": altitudeAGLDREF,
             "pitch" : pitchDREF,
-            "brake": brakeDREF,
+            "brakes": brakeDREF,
             "wheelSpeed": wheelSpeedDREF,
             "wheelWeight": wheelWeightDREF
         }
+
         """
         Initial Initialization of destination Variables and loading into destinations array
         """
@@ -71,13 +72,14 @@ class AircraftLandingModel(pyactr.ACTRModel):
             "airspeed" : self.airspeed,
             "roll" : self.roll,
             "heading" : self.heading,
-            "verticalSpeed" : self.descent_rate,
+            "vertical speed" : self.descent_rate,
             "altitude": self.altitude,
             "pitch" : self.pitch,
-            "brake": self.brakes,
+            "brakes": self.brakes,
             "wheelSpeed": self.wheelSpeed,
             "wheelWeight": self.wheelWeight
         }
+
         """
         Initial Initialization of target Values
         """
@@ -88,14 +90,19 @@ class AircraftLandingModel(pyactr.ACTRModel):
         self.target_altitude = -998
         self.target_pitch = 20
         self.targets = [self.target_airspeed,self.target_roll,self.target_heading,self.target_descent_rate,self.target_altitude,self.target_pitch]
-   
+        
 
         #State Flags (Boolean)  & Current State (Integer)
         self.descent = False
         self.flare = False
         self.rollOut = False
         self.currentState = 0
-        self.stateFlags = [self.descent,self.flare,self.rollOut]
+        # self.stateFlags = [self.descent,self.flare,self.rollOut]
+        self.phaseFlags = {
+            "descent" : self.descent,
+            "flare" : self.flare,
+            "roll out" : self.rollOut
+        }
 
 
         # Declare the state for previous values
@@ -127,6 +134,18 @@ class AircraftLandingModel(pyactr.ACTRModel):
         # while(idx < len(self.sources) - 1):
         #     self.variableAtlas[0] = [self.sources[idx],self.destinations[idx],self.targets[idx]]
         #     idx += 1
+
+    def dictionaryAccess(self,dictionary,key):
+        # print("dictionary access for: " + str(key))
+        result = dictionary[key]
+        if isinstance(result, tuple):
+            return result[0]
+        else: 
+            return result
+
+        
+        
+    
     def reassignClient(self,newClient):
         self.client = newClient
 
@@ -136,9 +155,9 @@ class AircraftLandingModel(pyactr.ACTRModel):
         for key in self.sources:
             self.destinations[key] = results[idx]
             idx+=1
-        print("getDrefs: " + str(results[1][0]))
-        print("current destination: " + str(self.destinations["airspeed"]))
-        print("current main Airspeed: " + str(self.airspeed))
+        # print("getDrefs: " + str(results[1][0]))
+        # print("current destination: " + str(self.destinations["airspeed"]))
+        # print("current main Airspeed: " + str(self.airspeed))
 
         # while(idx < len(results) - 2):    
         #     self.destinations[idx] = results[idx][0]
@@ -150,17 +169,18 @@ class AircraftLandingModel(pyactr.ACTRModel):
         
 
     def printControls(self,calculated,errors,yokePull,yokeSteer,rudder,throttle):
-        print("In print controls")
+        # print("In print controls")
         if(calculated == 1):
             # print("*        Calculated Controls         *")
             # print("*Parameter,Target,Current,Yoke Pull:      " + "Airspeed, " + str(self.target_airspeed) + "," +  str(self.airspeed)+ "," + str(yokePull))
-            # print("*Parameter,Target,Current,Yoke Steer:     " + "Roll, " + str(self.target_roll) + "," +  str(self.roll)+ "," + str(yokeSteer))
+            # print("*Parameter,Target,Current,Yoke Steer:     " + "Roll, " + str(self.target_roll) + "," +  str(self.destinations["roll"])+ "," + str(yokeSteer))
             # print("*Parameter,Target,Current,Rudder:         " + "Heading, " + str(self.target_heading) + "," +  str(self.heading)+ "," + str(rudder))
             # print("*Parameter,Target,Current,Throttle:       " + "Descent Rate, " + str(self.target_descent_rate) + "," +  str(self.descent_rate)+ "," + str(throttle))
             parameter = ["Airspeed","Roll","Heading","Descent Rate","Altitude","Flare: Pitch", "Brakes: Wheel Speed", "Brakes: Wheel Weight"]
             target =  [str(round(self.target_airspeed)),str(round(self.target_roll)),str(round(self.target_heading,3)),str(round(self.target_descent_rate,3)),str(round(self.altitude,3)),str(round(self.target_pitch,3)),0, 0]
-            current = [str(round(self.destinations["airspeed"],3)),str(round(self.roll,3)),str(round(self.heading,3)),str(round(self.descent_rate,3)),str(round(self.altitude,3)),str(round(self.pitch,3)),str(round(self.wheelSpeed,3)),str(round(self.wheelWeight,3))]
-            controlVal = [str(round(yokePull,3)),str(round(yokeSteer,3)),str(round(rudder,3)),str(round(throttle,3)),str(round(self.altitude,3)),str(self.flare),str(round(self.brakes,3)),str(round(self.brakes,3))]
+            current = [str(round(self.dictionaryAccess(self.destinations,"pitch"),3)),str(round(self.dictionaryAccess(self.destinations,"roll"),3)),str(round(self.dictionaryAccess(self.destinations,"heading"),3)),str(round(self.dictionaryAccess(self.destinations,"vertical speed"),3)),
+                       str(round(self.dictionaryAccess(self.destinations,"altitude"),3)),str(round(self.dictionaryAccess(self.destinations,"pitch"),3)),str(round(self.dictionaryAccess(self.destinations,"wheelSpeed"),3)),str(round(self.dictionaryAccess(self.destinations,"wheelWeight"),3))]
+            controlVal = [str(round(yokePull,3)),str(round(yokeSteer,3)),str(round(rudder,3)),str(round(throttle,3)),str(round(self.altitude,3)),str(self.dictionaryAccess(self.phaseFlags,"flare")),str(round(self.dictionaryAccess(self.destinations,"brakes"),3)),str(round(self.dictionaryAccess(self.destinations,"brakes"),3))]
 
             header_row = "{:<20} {:<20} {:<20} {:>10}"
             headers = "Parameter Target Current Control_Value".split()
@@ -213,29 +233,28 @@ class AircraftLandingModel(pyactr.ACTRModel):
 
         ###Transformations:
         #Simple Sigmoid:
-        control_value = (2 / (1 + math.exp(-(control_value/scalingFactor)))) - 1  
+        control_value = (2 / (1 + math.exp(-(control_value/scalingFactor)))) - 1
 
         # self.printVariables(print,target,current,error,(self.Kp * error),(self.Ki * integral_error))
         return control_value, integral_error  # Return control value and updated integral error
 
 
-    def update_controls_simultaneously(self):  
+    def update_controls_simultaneously(self):
         """
         Update all controls at the same time by calculating control values for each parameter.
         """
         # print("In update controls")
         # print("Entered Update Controls Simultaneously")
         # Compute control values for all parameters (yoke pull, yoke steer, rudder, throttle)
-        if(self.flare): 
-             yoke_pull, self.integral_airspeed = self.proportionalIntegralControl(1,self.pitch, 
+        if(self.dictionaryAccess(self.phaseFlags,"flare")): 
+             yoke_pull, self.integral_airspeed = self.proportionalIntegralControl(1,self.dictionaryAccess(self.destinations,"pitch"), 
                                                                              self.target_pitch, 
                                                                              self.integral_pitch, 
                                                                              scaleFactor.SCALEYOKEPULL)
-             print("Flare Control Scheme Active")
         
-        if(self.flare == False):
+        if(self.dictionaryAccess(self.phaseFlags,"flare") == False):
              self.target_pitch = 10
-             yoke_pull, self.integral_airspeed = self.proportionalIntegralControl(1,self.pitch, 
+             yoke_pull, self.integral_airspeed = self.proportionalIntegralControl(1,self.dictionaryAccess(self.destinations,"pitch"), 
                                                                              self.target_pitch, 
                                                                              self.integral_pitch, 
                                                                              scaleFactor.SCALEYOKEPULL)
@@ -244,22 +263,23 @@ class AircraftLandingModel(pyactr.ACTRModel):
             #                                                                  self.integral_airspeed, 
             #                                                                  scaleFactor.SCALEYOKEPULL)
 
-        yoke_steer, self.integral_roll = self.proportionalIntegralControl(0,self.roll, self.target_roll, self.integral_roll,scaleFactor.SCALEYOKESTEER)
-        rudder, self.integral_heading = self.proportionalIntegralControl(0,self.heading, self.target_heading, self.integral_heading,scaleFactor.SCALERUDDER)
-        throttle, self.integral_descent_rate = self.proportionalIntegralControl(0,self.descent_rate, self.target_descent_rate, self.integral_descent_rate,scaleFactor.SCALETHROTTLE)
+        yoke_steer, self.integral_roll = self.proportionalIntegralControl(0,self.dictionaryAccess(self.destinations,"roll"), self.target_roll, self.integral_roll,scaleFactor.SCALEYOKESTEER)
+        rudder, self.integral_heading = self.proportionalIntegralControl(0,self.dictionaryAccess(self.destinations,"heading"), self.target_heading, self.integral_heading,scaleFactor.SCALERUDDER)
+        throttle, self.integral_descent_rate = self.proportionalIntegralControl(0,self.dictionaryAccess(self.destinations,"vertical speed"), self.target_descent_rate, self.integral_descent_rate,scaleFactor.SCALETHROTTLE)
         ### 1. For Calculated Yoke and Throttle Values 
         #Invert Throttle Control & divide by 5 to scale
+
         throttle = -throttle
         throttle = throttle/5
         #Invert Yoke Pull & divide by 5 to scale
         yoke_pull = yoke_pull/5
         ## 2. For Constant Yoke and Throttle Values      
         # Constant yoke "back pressure" equal to 20% of total travel distance
-        if(self.flare == False):
+        if(self.dictionaryAccess(self.phaseFlags,"flare") == False):
             yoke_pull = yoke_pull * 20
             # yoke_pull = 0.23
             throttle = 0.28
-        if(self.flare == True):
+        if(self.dictionaryAccess(self.phaseFlags,"flare") == True):
             # yoke_pull = -yoke_pull
             yoke_pull = yoke_pull * 20
             throttle = 0
@@ -302,17 +322,17 @@ class AircraftLandingModel(pyactr.ACTRModel):
         # print("Yoke Pull:" + str(yoke_pull))
 
         #Set the Trim to a value that allows the aircraft to osscilate around the target airspeed
-        if(self.flare == False):
+        if(self.dictionaryAccess(self.phaseFlags,"flare") == False):
             trimdref = "sim/flightmodel/controls/elv_trim"
             trim = -0.3
             self.client.sendDREF(trimdref,trim)
 
-        if(self.flare):
+        if(self.dictionaryAccess(self.phaseFlags,"flare")):
             trimdref = "sim/flightmodel/controls/elv_trim"
             trim = 0
             self.client.sendDREF(trimdref,trim)
 
-        if(self.rollOut):
+        if(self.dictionaryAccess(self.phaseFlags,"roll out")):
             #Cut the Throttle
             throttle = 0
             #Release Yoke Back Pressure (Pitch Up Pressure from the flare maneuver)
@@ -325,19 +345,26 @@ class AircraftLandingModel(pyactr.ACTRModel):
         self.client.sendCTRL([yoke_pull, yoke_steer, rudder, throttle, -998, -998])  # Control inputs: [yoke_pull, yoke_steer, rudder, throttle]
 
     def conditionChecks(self):
-        if(self.wheelWeight > 0.01 and self.wheelSpeed > 1):
+
+        if(self.dictionaryAccess(self.destinations,"wheelWeight") > 0.01 
+           and self.dictionaryAccess(self.destinations,"wheelSpeed") > 1):
             #Two Parameters to Confirm Touchdown and wheel contact
             # "sim/flightmodel/parts/tire_vrt_def_veh" #Gear Strut Deflection (Weight on wheels)
             # "sim/flightmodel2/gear/tire_rotation_rate_rad_sec" #Tire Rotation Rate
-            self.rollOut = True
+            self.phaseFlags["roll out"] = True
             print("Hit the brakes")
 
-        if(self.altitude <= 20):
-            self.flare = True
+        if(self.dictionaryAccess(self.destinations,"altitude") <= 20 
+           and self.dictionaryAccess(self.phaseFlags,"flare") == False): 
+            self.phaseFlags["flare"] = True
             self.Ki = 0.01  ## Increase Control Authority to compensate for decreasing airspeed
             print("Altitude < 500; Flare Set True")
-        
-        if(self.wheelWeight > 0.01 and self.wheelSpeed > 1 and self.destinations["airspeed"] < 1 and self.brakes == 1):
+        print("*******FLAG*******")
+
+        if(self.dictionaryAccess(self.destinations,"wheelWeight") > 0.01 
+           and self.dictionaryAccess(self.destinations,"wheelSpeed") < 1 
+           and self.dictionaryAccess(self.destinations,"airspeed") < 2 
+           and self.dictionaryAccess(self.destinations,"brakes") == 1):            
             self.inProgress = False
     
     def simulationStatus(self):
@@ -350,6 +377,7 @@ class AircraftLandingModel(pyactr.ACTRModel):
         Faster Method 
         """
         self.getAndLoadDREFS()
+        print("midpoint")
         self.conditionChecks()
         
 
