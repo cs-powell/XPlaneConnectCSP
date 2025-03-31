@@ -250,7 +250,7 @@ class AircraftLandingModel(pyactr.ACTRModel):
              yoke_pull, self.integral_airspeed = self.proportionalIntegralControl(1,self.dictionaryAccess(self.destinations,"pitch"), 
                                                                              self.target_pitch, 
                                                                              self.integral_pitch, 
-                                                                             scaleFactor.SCALEYOKEPULL)
+                                                                     scaleFactor.SCALEYOKEPULL)
         
         if(self.dictionaryAccess(self.phaseFlags,"flare") == False):
              self.target_pitch = 10

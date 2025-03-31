@@ -5,6 +5,8 @@ from time import sleep
 import xpc
 from cognitiveModel import AircraftLandingModel
 import shutil
+def experimentSetUp(client):
+    
 
 def runExperiment(title):
 
@@ -28,6 +30,8 @@ def runExperiment(title):
                 #     print("Exiting...")
                 #     return
                 cogModel = AircraftLandingModel(client,True)
+
+                experimentSetUp(cogModel.client)
             # # Set position of the player aircraft
                 # print("Setting position")
                 # #       Lat     Lon         Alt   Pitch Roll Yaw Gear
@@ -118,8 +122,7 @@ def runExperiment(title):
 
                 client.pauseSim(False)
 
-                # 39.96239°N/104.69713°W
-                #                 # Set control surfaces and throttle of the player aircraft using sendCTRL
+                # Set control surfaces and throttle of the player aircraft using sendCTRL
                 print("Setting controls")
                 ctrl = [0.0, 0.0, 0.0, 0.0]
                 client.sendCTRL(ctrl)
@@ -130,7 +133,6 @@ def runExperiment(title):
                 count = 0
                 innercount = 0
                 clockStart = time.time()
-                #Doing stuff In between Test SECOND INCREMENTS
                 retry = 0
                 while(cogModel.simulationStatus()):
                     # print("Start of innerwhile loop")
@@ -148,47 +150,6 @@ def runExperiment(title):
                     # print("Clock Time: " + str(clockEnd - clockStart)) ## LOG TIME TAKEN 
                     sleep(0.05) # LET Simulator Run 50 Milliseconds
 
-                    ##EXCEPTION TEST BED
-                        # try:
-                        #     clockStart = time.time() #START TIMER
-                        #     # client.pauseSim(True) # Pause Simulator
-                        #     #Run Model
-                        #     cogModel.update_aircraft_state()
-                        #     cogModel.update_controls_simultaneously()
-                        #     client.pauseSim(False) #Unpause Simulator
-                        #     clockEnd = time.time() # STOP TIMER
-                        #     count+=1
-                        #     # print("Clock Time: " + str(clockEnd - clockStart)) ## LOG TIME TAKEN 
-                        #     sleep(0.05) # LET Simulator Run 50 Milliseconds
-                        # except TimeoutError as e:
-                        #         clockStart = time.time()
-                        #         difference = 0
-                        #         print("Outer exception retry: " + str(retry))
-                        #         while(difference<10):
-                        #             print("Top of while loop")
-                        #             try: 
-                        #                 print("Top of TRY")
-                        #                 with xpc.XPlaneConnect() as client:
-                        #                     print("Top of reassign")
-                        #                     cogModel.reassignClient(client)
-                        #                     print("Bottom of reassign")
-                        #                     ##Test the connection 
-                        #                     print("TOP: Testing connection")
-                        #                     cogModel.client.getDREF("sim/test/test_float")  ##EXCEPTION OCCURING HERE
-                        #                     print("CONNECTION SUCCESFUL!!!!!!")
-                        #                     print("TRY BLOCK, go back to start: " + str(retry))
-                        #             except: 
-                        #                 print("Top of EXCEPT")
-                        #                 print("EXCEPT BLOCK, go back to start: " + str(retry))
-                        #                 clockEnd = time.time() # STOP TIMER
-                        #                 difference = clockEnd - clockStart
-                        #                 retry+=1
-                        #                 print("Time Elapsed: -----> " + str(difference))
-
-                        #                  ##Do Nothing, go back to start of difference loop
-                        #             else:
-                        #                  print("Breaking out of Timeout exception loop")
-                        #                  break
                     startTime = time.time()
                     experimentLive = cogModel.simulationStatus()
         except:
@@ -207,8 +168,8 @@ def runExperiment(title):
     #Copy data.txt to the cloudddddd using python magic and accurate filepaths
     now = datetime.datetime
     shutil.copy("/Users/flyingtopher/X-Plane 11/Data.txt", "/Users/flyingtopher/Desktop/Test Destination/" + title + "_" + str(now.now()) + "_" + ".txt")
-    print("CLEAN UP: Data File Copied and saved")
-    os.remove("/Users/flyingtopher/X-Plane 11/Data.txt") 
+    # print("CLEAN UP: Data File Copied and saved")
+    # os.remove("/Users/flyingtopher/X-Plane 11/Data.txt")
     print("CLEAN UP: Data File Deleted and Reset")
     input("Press any key to exit...")
     ##Reset the sim with the keyboard shortcut (wrapper around model that waits for reconnection)
@@ -222,6 +183,8 @@ def ex():
     count = 0
     while(count<2):
         input("Press Enter to Start Experiment #" + str(count) + ": ")
+        print("Data File Reset")
+        f = open("/Users/flyingtopher/X-Plane 11/Data.txt", 'w')
         runExperiment(title)
         count+=1
     print("Experiment Battery Complete")

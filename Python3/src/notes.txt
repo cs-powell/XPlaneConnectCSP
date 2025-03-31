@@ -59,3 +59,45 @@ May 13th final draft
 Overhead of unpausing/pausing the simulator
 Simulating without Drawing the call:
 https://forums.x-plane.org/index.php?/forums/topic/227426-run-x-plane-without-rendering-model/
+
+##EXCEPTION TEST BED
+                        # try:
+                        #     clockStart = time.time() #START TIMER
+                        #     # client.pauseSim(True) # Pause Simulator
+                        #     #Run Model
+                        #     cogModel.update_aircraft_state()
+                        #     cogModel.update_controls_simultaneously()
+                        #     client.pauseSim(False) #Unpause Simulator
+                        #     clockEnd = time.time() # STOP TIMER
+                        #     count+=1
+                        #     # print("Clock Time: " + str(clockEnd - clockStart)) ## LOG TIME TAKEN 
+                        #     sleep(0.05) # LET Simulator Run 50 Milliseconds
+                        # except TimeoutError as e:
+                        #         clockStart = time.time()
+                        #         difference = 0
+                        #         print("Outer exception retry: " + str(retry))
+                        #         while(difference<10):
+                        #             print("Top of while loop")
+                        #             try: 
+                        #                 print("Top of TRY")
+                        #                 with xpc.XPlaneConnect() as client:
+                        #                     print("Top of reassign")
+                        #                     cogModel.reassignClient(client)
+                        #                     print("Bottom of reassign")
+                        #                     ##Test the connection 
+                        #                     print("TOP: Testing connection")
+                        #                     cogModel.client.getDREF("sim/test/test_float")  ##EXCEPTION OCCURING HERE
+                        #                     print("CONNECTION SUCCESFUL!!!!!!")
+                        #                     print("TRY BLOCK, go back to start: " + str(retry))
+                        #             except: 
+                        #                 print("Top of EXCEPT")
+                        #                 print("EXCEPT BLOCK, go back to start: " + str(retry))
+                        #                 clockEnd = time.time() # STOP TIMER
+                        #                 difference = clockEnd - clockStart
+                        #                 retry+=1
+                        #                 print("Time Elapsed: -----> " + str(difference))
+
+                        #                  ##Do Nothing, go back to start of difference loop
+                        #             else:
+                        #                  print("Breaking out of Timeout exception loop")
+                        #                  break
