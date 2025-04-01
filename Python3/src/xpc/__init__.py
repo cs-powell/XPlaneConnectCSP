@@ -311,7 +311,7 @@ class XPlaneConnect(object):
                     raise ValueError("value must have less than 256 items.")
                 fmt = "<B{0:d}sB{1:d}f".format(len(dref), len(value))
                 # buffer += struct.pack(fmt.encode(), len(dref), dref.encode(), len(value), value)
-                buffer += struct.pack(fmt.encode(), len(dref), dref.encode(), 2, *value)
+                buffer += struct.pack(fmt.encode(), len(dref), dref.encode(), len(value), *value)
 
             else:
                 fmt = "<B{0:d}sBf".format(len(dref))

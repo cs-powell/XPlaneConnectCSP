@@ -359,7 +359,6 @@ class AircraftLandingModel(pyactr.ACTRModel):
             self.phaseFlags["flare"] = True
             self.Ki = 0.01  ## Increase Control Authority to compensate for decreasing airspeed
             print("Altitude < 500; Flare Set True")
-        print("*******FLAG*******")
 
         if(self.dictionaryAccess(self.destinations,"wheelWeight") > 0.01 
            and self.dictionaryAccess(self.destinations,"wheelSpeed") < 1 
@@ -377,11 +376,6 @@ class AircraftLandingModel(pyactr.ACTRModel):
         Faster Method 
         """
         self.getAndLoadDREFS()
-        print("midpoint")
         self.conditionChecks()
-        
 
-        
-
-        
     # def logData(self):
