@@ -2,6 +2,7 @@ import pyactr
 # from XPlaneConnect import *
 import xpc
 import math
+import geopy
 # Initialize XPlaneConnect client
 class scaleFactor():
     SCALEYOKEPULL = 10
@@ -16,7 +17,6 @@ class AircraftLandingModel(pyactr.ACTRModel):
         self.client = client
         self.inProgress = True
         self.printControlsFlag = printFlag
-
         """
         Setting DREF variables and loading into drefs array
         """
@@ -56,10 +56,11 @@ class AircraftLandingModel(pyactr.ACTRModel):
         wheelS = self.client.getDREF("sim/flightmodel2/gear/tire_rotation_speed_rad_sec")
         wheelW = self.client.getDREF("sim/flightmodel/parts/tire_vrt_def_veh")
 
+        HARDCODE_HEADING = 179
         
         self.airspeed = airspeed[0]
         self.roll = roll[0]
-        self.heading = heading[0]
+        self.heading = HARDCODE_HEADING
         self.descent_rate = descent_rate[0]
         self.altitude = altitude[0]
         self.pitch = pitch[0]

@@ -23,9 +23,9 @@ def eulerToQuat(psiInput,thetaInput,phiInput):
     return quat
 
 
-def experimentSetUp(client,altitudeInput):
+def experimentSetUp(client,altitudeInput,newExperiment):
     print("Entered: EXPERIMENTSETUP")
-    if(True):
+    if(newExperiment):
         #Location:
         groundLevel = 5434
         offset = altitudeInput
@@ -107,8 +107,8 @@ def experimentSetUp(client,altitudeInput):
         input("Press Enter to finish setting up Simulation")
         client.pauseSim(False)
         print("Setting initial velocity")
-        zInit = "sim/flightmodel/position/local_vx"
-        client.sendDREF(zInit, 0)
+        zInit = "sim/flightmodel/position/local_vz"
+        client.sendDREF(zInit, 80)
         print("setup complete")
 
 
@@ -164,7 +164,7 @@ def runExperiment(title,printFlag,experimentStart):
     endTime = 0
     difference = endTime - startTime
     experimentLive = True
-    timeoutLimit = 1
+    timeoutLimit = 10
     newExperiment =  experimentStart
     while(difference < timeoutLimit and experimentLive):
         print("Time Elapsed: -----> " + str(difference))
@@ -173,13 +173,13 @@ def runExperiment(title,printFlag,experimentStart):
                 # Verify connection
                 client.getDREF("sim/test/test_float")
                 cogModel = AircraftLandingModel(client,printFlag)
-                experimentSetUp(cogModel.client,3000)
+                experimentSetUp(cogModel.client,3000,newExperiment)
                 cogModel.client.pauseSim(False)
                 count = 0
                 innercount = 0
                 clockStart = time.time()
                 retry = 0
-                newExperment = False
+                newExperiment = False
                 while(cogModel.simulationStatus()):  
                     clockStart = time.time() #START TIMER
                     #Run Model
@@ -229,7 +229,7 @@ def ex():
         input("Press Enter to Start Experiment #" + str(count) + ": ")
         print("Data File Reset")
         f = open("/Users/flyingtopher/X-Plane 11/Data.txt", 'w')
-        exit = runExperiment(title,False,True)
+        exit = runExperiment(title,True,True)
         if(exit):
             break
         count+=1
