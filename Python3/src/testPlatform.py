@@ -233,6 +233,7 @@ def ex():
         if(exit):
             break
         count+=1
+        
     print("Experiment Battery Complete")
 
 if __name__ == "__main__":
