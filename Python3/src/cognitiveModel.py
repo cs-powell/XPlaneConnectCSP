@@ -2,7 +2,11 @@ import pyactr
 # from XPlaneConnect import *
 import xpc
 import math
-import geopy
+# import geopy
+from geographiclib.geodesic import Geodesic as geo
+
+
+
 # Initialize XPlaneConnect client
 class scaleFactor():
     SCALEYOKEPULL = 10
@@ -17,6 +21,8 @@ class AircraftLandingModel(pyactr.ACTRModel):
         self.client = client
         self.inProgress = True
         self.printControlsFlag = printFlag
+        self.targetLat = 39.851898
+        self.targetLong = -104.6966
         """
         Setting DREF variables and loading into drefs array
         """
@@ -86,7 +92,7 @@ class AircraftLandingModel(pyactr.ACTRModel):
         """
         self.target_airspeed = 80
         self.target_roll = 0
-        self.target_heading = self.heading #Track heading from initialization
+        self.target_heading = self.heading #Track heading from initialization[DEPRECATED]
         self.target_descent_rate = 500
         self.target_altitude = -998
         self.target_pitch = 20
@@ -150,12 +156,22 @@ class AircraftLandingModel(pyactr.ACTRModel):
     def reassignClient(self,newClient):
         self.client = newClient
 
+    def get_bearing(self,lat1, lat2, long1, long2):
+        brng = geo.WGS84.Inverse(lat1, long1, lat2, long2)['azi1']
+        self.target_heading = brng
+        print("TARGET BEARING: " + str(brng))
+
     def getAndLoadDREFS(self):
         results = self.client.getDREFs(self.sources.values())
         idx = 0
         for key in self.sources:
             self.destinations[key] = results[idx]
             idx+=1
+        #Update Target Heading
+        lat = self.client.getDREF("sim/flightmodel/position/latitude") ##Current Lat 
+        long = self.client.getDREF("sim/flightmodel/position/longitude") ##Current Long
+        self.get_bearing(lat[0],self.targetLat,long[0],self.targetLong)
+
         # print("getDrefs: " + str(results[1][0]))
         # print("current destination: " + str(self.destinations["airspeed"]))
         # print("current main Airspeed: " + str(self.airspeed))

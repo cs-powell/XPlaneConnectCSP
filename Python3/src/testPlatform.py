@@ -229,7 +229,7 @@ def ex():
         input("Press Enter to Start Experiment #" + str(count) + ": ")
         print("Data File Reset")
         f = open("/Users/flyingtopher/X-Plane 11/Data.txt", 'w')
-        exit = runExperiment(title,True,True)
+        exit = runExperiment(title,False,True)
         if(exit):
             break
         count+=1
