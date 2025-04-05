@@ -109,7 +109,7 @@ class AircraftLandingModel(pyactr.ACTRModel):
         self.target_Long = -104.696032
         self.target_descent_rate = 500
         self.target_altitude = -998
-        self.target_pitch = 20
+        self.target_pitch = 25
         self.targets = [self.target_airspeed,self.target_roll,self.target_heading,self.target_Lat,self.target_Long,self.target_descent_rate,self.target_altitude,self.target_pitch]
         
 
@@ -221,7 +221,7 @@ class AircraftLandingModel(pyactr.ACTRModel):
                        0, 
                        0]
             
-            current = [str(round(self.dictionaryAccess(self.destinations,"pitch"),3)),
+            current = [str(round(self.dictionaryAccess(self.destinations,"airspeed"),3)),
                        str(round(self.dictionaryAccess(self.destinations,"roll"),3)),
                        str(round(self.dictionaryAccess(self.destinations,"heading"),3)),
                        str(round(self.dictionaryAccess(self.destinations,"longitude"),6)),
@@ -312,7 +312,7 @@ class AircraftLandingModel(pyactr.ACTRModel):
                                                                      scaleFactor.SCALEYOKEPULL)
         
         if(self.dictionaryAccess(self.phaseFlags,"flare") == False):
-             self.target_pitch = 10
+             self.target_pitch = 20
              yoke_pull, self.integral_airspeed = self.proportionalIntegralControl(1,self.dictionaryAccess(self.destinations,"pitch"), 
                                                                              self.target_pitch, 
                                                                              self.integral_pitch, 

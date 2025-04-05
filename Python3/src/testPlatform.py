@@ -52,7 +52,7 @@ def experimentSetUp(client,currentConditions,newExperiment):
         altitudeMETERS = altitudeFEET/3.281
         altitude = altitudeMETERS
         print(str(altitude))
-        location1 =  [20,   -998, 39.96239,  -104.69713, altitude, -998, -998, -998, -998]
+        location1 =  [20,   -998, 39.96239,  -104.696032, altitude, -998, -998, -998, -998]
         # testLocation = [20,   -998, 27.20579,  -80.08621, altitude, -998, -998, -998, -998] # 27.20579°N/80.08621°W
         data = [
             location1\
@@ -127,7 +127,7 @@ def experimentSetUp(client,currentConditions,newExperiment):
         client.pauseSim(False)
         print("Setting initial velocity")
         zInit = "sim/flightmodel/position/local_vz"
-        client.sendDREF(zInit, 80)
+        client.sendDREF(zInit, 50)
         print("setup complete")
 
 
