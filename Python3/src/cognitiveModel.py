@@ -13,7 +13,7 @@ class scaleFactor():
     SCALEYOKEPULL = 10
     SCALEYOKESTEER = 10
     SCALERUDDER = 10
-    SCALELATITUDERUDDER = 0.02
+    SCALELATITUDERUDDER = 0.001
     SCALETHROTTLE = 1000
 
 ###Define variables/parameters for aircraft class/category : Wisdom of Raju 
@@ -24,7 +24,7 @@ class AircraftLandingModel(pyactr.ACTRModel):
         self.inProgress = True
         self.printControlsFlag = printFlag
         self.targetLat = 39.895791
-        self.targetLong = -104.696014
+        self.targetLong = -104.696032
         """
         Setting DREF variables and loading into drefs array
         """
@@ -105,8 +105,8 @@ class AircraftLandingModel(pyactr.ACTRModel):
         self.target_airspeed = 80
         self.target_roll = 0
         self.target_heading = self.heading #Track heading from initialization[DEPRECATED]
-        self.target_Lat = self.latitude #Track Lat
-        self.target_Long = self.longitude #Track Long
+        self.target_Lat = 39.895791
+        self.target_Long = -104.696032
         self.target_descent_rate = 500
         self.target_altitude = -998
         self.target_pitch = 20
@@ -330,6 +330,9 @@ class AircraftLandingModel(pyactr.ACTRModel):
         #ORIGINAL
         # rudder, self.integral_heading = self.proportionalIntegralControl(0,self.dictionaryAccess(self.destinations,"heading"), self.target_heading, self.integral_heading,scaleFactor.SCALERUDDER) 
         #lATITUDE/LONGITUDE
+        if(self.destinations,"longitude" == self.target_Long):
+            self.integral_Longitude = 0
+
         rudder, self.integral_Longitude = self.proportionalIntegralControl(0,self.dictionaryAccess(self.destinations,"longitude"), self.target_Long, self.integral_Longitude,scaleFactor.SCALELATITUDERUDDER)
 
         
@@ -377,11 +380,13 @@ class AircraftLandingModel(pyactr.ACTRModel):
         ##Method 2: Same Control Statements with Change in Parameter to decided pitch from Airspeed ---> Local Pitch Relative to the Horizon
 
         rudder = rudder * -1
+
+        additive = rudder*1.0
         #Switch Target for Pitch to Local Pitch Axis (ex. +10 Degrees nose up)
         if(self.printControlsFlag):
-            self.printControls(1,0,yoke_pull,yoke_steer,rudder,throttle) #PRINT CONTROLS 
+            self.printControls(1,0,yoke_pull,yoke_steer+additive,rudder,throttle) #PRINT CONTROLS 
         # Send all controls simultaneously to X-Plane
-        self.send_controls_to_xplane(yoke_pull, yoke_steer, rudder, throttle)
+        self.send_controls_to_xplane(yoke_pull, yoke_steer+additive, rudder, throttle)
 
 
     def send_controls_to_xplane(self, yoke_pull, yoke_steer, rudder, throttle):

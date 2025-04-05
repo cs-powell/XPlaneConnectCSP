@@ -2,8 +2,6 @@
 
 import datetime
 from math import cos, pi, sin, sqrt
-
-
 import os
 import time
 from time import sleep
@@ -39,7 +37,6 @@ def loadFile():
         print(matrix)
         return matrix
     
-
 
 def selectWeather(matrix,experimentNumber):
     return matrix[experimentNumber]
