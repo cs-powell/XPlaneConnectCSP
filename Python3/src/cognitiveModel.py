@@ -21,8 +21,8 @@ class AircraftLandingModel(pyactr.ACTRModel):
         self.client = client
         self.inProgress = True
         self.printControlsFlag = printFlag
-        self.targetLat = 39.851898
-        self.targetLong = -104.6966
+        self.targetLat = 39.895791
+        self.targetLong = -104.696085
         """
         Setting DREF variables and loading into drefs array
         """
@@ -295,7 +295,7 @@ class AircraftLandingModel(pyactr.ACTRModel):
         if(self.dictionaryAccess(self.phaseFlags,"flare") == False):
             yoke_pull = yoke_pull * 20
             # yoke_pull = 0.23
-            throttle = 0.28
+            throttle = 0.20
         if(self.dictionaryAccess(self.phaseFlags,"flare") == True):
             # yoke_pull = -yoke_pull
             yoke_pull = yoke_pull * 20

@@ -6,6 +6,8 @@ from time import sleep
 import xpc
 from cognitiveModel import AircraftLandingModel
 import shutil
+import csv
+
 
 
 def eulerToQuat(psiInput,thetaInput,phiInput):
@@ -23,7 +25,22 @@ def eulerToQuat(psiInput,thetaInput,phiInput):
     return quat
 
 
+def loadFile(index):
+    filename = "Python3/src/experiments/weather_files/weather_" + str(index) + ".csv"
+    with open(filename,"r") as f:
+        matrix = list(csv.reader(f,delimiter=','))
+        print(matrix)
+        return matrix
+
+
+def selectWeather(matrix,experimentNumber):
+    return matrix[experimentNumber]
+
+
+
 def experimentSetUp(client,altitudeInput,newExperiment):
+    loadFile(2)
+    # input("Check The Loaded File Now")
     print("Entered: EXPERIMENTSETUP")
     if(newExperiment):
         #Location:
@@ -94,7 +111,7 @@ def experimentSetUp(client,altitudeInput,newExperiment):
         client.sendDREF(windDirection,170)
         print("Set 1")
 
-        client.sendDREF(windSpeed,0)
+        client.sendDREF(windSpeed,40)
         print("Set 2")
 
 
@@ -104,7 +121,7 @@ def experimentSetUp(client,altitudeInput,newExperiment):
         # value = 8
         # client.sendDREF(preset,value)
         client.pauseSim(True)
-        input("Press Enter to finish setting up Simulation")
+        # input("Press Enter to finish setting up Simulation")
         client.pauseSim(False)
         print("Setting initial velocity")
         zInit = "sim/flightmodel/position/local_vz"
@@ -173,7 +190,7 @@ def runExperiment(title,printFlag,experimentStart):
                 # Verify connection
                 client.getDREF("sim/test/test_float")
                 cogModel = AircraftLandingModel(client,printFlag)
-                experimentSetUp(cogModel.client,3000,newExperiment)
+                experimentSetUp(cogModel.client,2000,newExperiment)
                 cogModel.client.pauseSim(False)
                 count = 0
                 innercount = 0
@@ -210,7 +227,8 @@ def runExperiment(title,printFlag,experimentStart):
     # print("CLEAN UP: Data File Copied and saved")
     # os.remove("/Users/flyingtopher/X-Plane 11/Data.txt")
     print("CLEAN UP: Data File Deleted and Reset")
-    exit = input("Press 'y' or any key to continue, press 'n' to exit...")
+    # exit = input("Press 'y' or any key to continue, press 'n' to exit...")
+    exit = False
     if(exit == "n"):
         exit = True
     else:
@@ -223,17 +241,18 @@ def ex():
     ##Different paramters on every run of the model
     ## Nested loops: 
         ##wind conditions, pilot conditions
-    title = input("Please Enter Experiment Set Title, leave blank for trial runs")
+    # title = input("Please Enter Experiment Set Title, leave blank for trial runs")
+    title = 'test'
     count = 0
-    while(count<2):
-        input("Press Enter to Start Experiment #" + str(count) + ": ")
+    while(count<7):
+        # input("Press Enter to Start Experiment #" + str(count) + ": ")
         print("Data File Reset")
         f = open("/Users/flyingtopher/X-Plane 11/Data.txt", 'w')
         exit = runExperiment(title,False,True)
         if(exit):
             break
         count+=1
-        
+
     print("Experiment Battery Complete")
 
 if __name__ == "__main__":
