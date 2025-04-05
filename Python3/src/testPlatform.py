@@ -1,5 +1,9 @@
+
+
 import datetime
 from math import cos, pi, sin, sqrt
+
+
 import os
 import time
 from time import sleep
@@ -7,8 +11,12 @@ import xpc
 from cognitiveModel import AircraftLandingModel
 import shutil
 import csv
+from enum import Enum
 
 
+class messageType(Enum):
+    REGULAR = 1
+    ERROR = 2
 
 def eulerToQuat(psiInput,thetaInput,phiInput):
     
@@ -24,28 +32,25 @@ def eulerToQuat(psiInput,thetaInput,phiInput):
     quat = [q0/e,q1/e,q2/e,q3/e]
     return quat
 
-
-def loadFile(index):
-    filename = "Python3/src/experiments/weather_files/weather_" + str(index) + ".csv"
+def loadFile():
+    filename = "Python3/src/experiments/weather_files/weather.csv"
     with open(filename,"r") as f:
         matrix = list(csv.reader(f,delimiter=','))
         print(matrix)
         return matrix
+    
 
 
 def selectWeather(matrix,experimentNumber):
     return matrix[experimentNumber]
 
-
-
-def experimentSetUp(client,altitudeInput,newExperiment):
-    loadFile(2)
+def experimentSetUp(client,currentConditions,newExperiment):
     # input("Check The Loaded File Now")
     print("Entered: EXPERIMENTSETUP")
     if(newExperiment):
         #Location:
         groundLevel = 5434
-        offset = altitudeInput
+        offset = float(currentConditions[1])
         altitudeFEET = groundLevel + offset
         altitudeMETERS = altitudeFEET/3.281
         altitude = altitudeMETERS
@@ -56,6 +61,7 @@ def experimentSetUp(client,altitudeInput,newExperiment):
             location1\
             ]
         client.sendDATA(data)
+
 
 
         print("Zero velocities")
@@ -104,19 +110,18 @@ def experimentSetUp(client,altitudeInput,newExperiment):
             # result = client.getDREF(windLayer)
             # print("Wind:" + str(result))
         print("Setting Wind Layers")
-        client.sendDREF(windLayer,6000)
-        client.sendDREF(windLayer2,15000)
-        client.sendDREF(windLayer3,15000)
+        client.sendDREF(windLayer,float(currentConditions[2]))
+        # client.sendDREF(windLayer2,15000)
+        # client.sendDREF(windLayer3,15000)
         print("Setting Wind Direction and Speed")
-        client.sendDREF(windDirection,170)
-        print("Set 1")
 
-        client.sendDREF(windSpeed,40)
+        client.sendDREF(windDirection,float(currentConditions[3]))
+        print("Set 1")
+        client.sendDREF(windSpeed,float(currentConditions[4]))
         print("Set 2")
 
 
         # client.sendDREF(turbulence,turbulencePercentage)
-
         # preset = "sim/weather/region/weather_preset"
         # value = 8
         # client.sendDREF(preset,value)
@@ -139,121 +144,133 @@ def experimentSetUp(client,altitudeInput,newExperiment):
             18 - Angle of Attack
             20 - Latitude and Longitude
         """
-        kias = -998
-        keas = -998
-        ktas = -998
-        ktgs = -998
-        mph = -998
-        mphas = 80
-        mphgs = 80
-
-        print("Setting orientation for test")
-        # client.sendDREF("sim/operation/override/override_planepath",1)
-        # client.pauseSim(True)
-
-        # client.sendDREF("sim/flightmodel/position/local_y",2000)
-        # client.sendDREFs(["sim/flightmodel/position/P","sim/flightmodel/position/Q","sim/flightmodel/position/R"],[0,0,0])
-        # client.sendDREF("sim/flightmodel/position/q",[0.3, 0, 0, 0.6])
-
-        # data = [\
-        #     [3,   -998, -998,   -998, -998, -998, -998, mphas, mphgs],\
-        #     [16,   0, 0,   0, -998, -998, -998, -998, -998],\
-        #     [17,   0, 0,   0, -998, -998, -998, -998, -998],\
-        #     [18,   -998, -998,   -998, -998, -998, -998, -998, -998],\
-        #     [19,   -998, -998,   -998, -998, -998, -998, -998, -998],\
-        #     testLocation\
-        #     ]
-        # client.sendDATA(data)
-        # client.sendDREF("sim/operation/override/override_planepath",0)
-        
-        # Set control surfaces and throttle of the player aircraft using sendCTRL
-        # print("Setting controls")
-        # ctrl = [0.0, 0.0, 0.0, 0.0]
-        # cogModel.client.sendCTRL(ctrl)
-        # print("past setting controls")
+        message = "Conditions are set as\n" \
+        "Starting Altitude: {} \n" \
+        "Layer Altitude: {} \n" \
+        "Wind Direction: {} \n" \
+        "Wind Speed: {} \n".format(currentConditions[1],currentConditions[2],currentConditions[3],currentConditions[4])
+        specialPrint(message,False,messageType.REGULAR)        
     else:
         print("Experiment currently in progress, not resetting position and environmental conditions")
 
-def runExperiment(title,printFlag,experimentStart):
-    print("Model Test: Xplane setting up connection")
-    print("Setting up simulation")
+def runExperiment(title,currentConditions,allowPrinting,isNewExperiment):
+    specialPrint("New Experiment\nSetting Up the Simulation",False,messageType.REGULAR)
     startTime = 0
     endTime = 0
-    difference = endTime - startTime
-    experimentLive = True
+    timeElapsed = endTime - startTime
+    experimentInProgress = True
     timeoutLimit = 10
-    newExperiment =  experimentStart
-    while(difference < timeoutLimit and experimentLive):
-        print("Time Elapsed: -----> " + str(difference))
+    newExperiment =  isNewExperiment
+
+    while(timeElapsed <= timeoutLimit and experimentInProgress):
+        # print("Time Elapsed: -----> " + str(timeElapsed))
         try:
             with xpc.XPlaneConnect() as client:
-                # Verify connection
+                """ 
+                Test Connection
+                """
                 client.getDREF("sim/test/test_float")
-                cogModel = AircraftLandingModel(client,printFlag)
-                experimentSetUp(cogModel.client,2000,newExperiment)
+                """
+                Setup Model
+                """
+                cogModel = AircraftLandingModel(client,allowPrinting)
+                """
+                Set Simulator Conditions
+                """
+                experimentSetUp(cogModel.client,currentConditions,newExperiment)
+                """
+                """
                 cogModel.client.pauseSim(False)
-                count = 0
-                innercount = 0
-                clockStart = time.time()
-                retry = 0
                 newExperiment = False
-                while(cogModel.simulationStatus()):  
-                    clockStart = time.time() #START TIMER
-                    #Run Model
-                    cogModel.update_aircraft_state()
+                
+                """
+                Single Experiment Loop
+                """
+                while(experimentInProgress):
+                    cogModel.update_aircraft_state() 
                     cogModel.update_controls_simultaneously()
-                    client.pauseSim(False) #Unpause Simulator
-                    clockEnd = time.time() # STOP TIMER
-                    count+=1
-                    # print("Clock Time: " + str(clockEnd - clockStart)) ## LOG TIME TAKEN 
-                    sleep(0.05) # LET Simulator Run 50 Milliseconds
+                    client.pauseSim(False)          #Unpause Simulator
+                    sleep(0.05)                     # Let Simulator Run 50 Milliseconds
                     startTime = time.time()
-                    experimentLive = cogModel.simulationStatus()
+                    experimentInProgress = cogModel.getSimulationStatus()
         except:
-            print("except detected")
             endTime = time.time()
-            print("Start Time:" + str(startTime))
-            print("End Time:" + str(endTime))
-            difference = endTime - startTime
+            timeElapsed = endTime - startTime
+            message = "Except detected\nStart Time: {a}\nEnd Time: {b}\n" \
+            "Time Elapsed: -----> {c} ".format(a= startTime, b=endTime,c=timeElapsed)
+            specialPrint(message,False,messageType.ERROR)
             continue
-    if(difference >= timeoutLimit):
-        print("Timeout[" + str(difference) +"]:"+"Error, please run test again")
+
+    """
+    Parse End Condition: Succesful Run or Timeout-Induced End
+    """
+    if(timeElapsed >= timeoutLimit):
+        print("Timeout[" + str(timeElapsed) +"]:"+"Error, please run test again")
     else: 
         print("Model has finished running")
 
-    #Copy data.txt to the cloudddddd using python magic and accurate filepaths
+
+    """
+    Ask Experimenter if they would like to exit experiment battery early 
+    """
+    exitDecision = input("Press 'y' or any key to continue, press 'n' to exit...")
+    if(exitDecision == "n"):
+        exitExperimentLoop = True
+    else:
+        exitExperimentLoop = False
+    return exitExperimentLoop
+
+def setUp():
+    open("/Users/flyingtopher/X-Plane 11/Data.txt", 'w')
+    specialPrint("Data Collection File Ready",False,messageType.REGULAR)
+
+def cleanUp(title):
     now = datetime.datetime
     shutil.copy("/Users/flyingtopher/X-Plane 11/Data.txt", "/Users/flyingtopher/Desktop/Test Destination/" + title + "_" + str(now.now()) + "_" + ".txt")
-    # print("CLEAN UP: Data File Copied and saved")
-    # os.remove("/Users/flyingtopher/X-Plane 11/Data.txt")
     print("CLEAN UP: Data File Deleted and Reset")
-    # exit = input("Press 'y' or any key to continue, press 'n' to exit...")
-    exit = False
-    if(exit == "n"):
-        exit = True
-    else:
-        exit = False
-    return exit
-    ##Reset the sim with the keyboard shortcut (wrapper around model that waits for reconnection)
-        
-def ex():
-    ##Store Experiment Battery
-    ##Different paramters on every run of the model
-    ## Nested loops: 
-        ##wind conditions, pilot conditions
-    # title = input("Please Enter Experiment Set Title, leave blank for trial runs")
-    title = 'test'
-    count = 0
-    while(count<7):
-        # input("Press Enter to Start Experiment #" + str(count) + ": ")
-        print("Data File Reset")
-        f = open("/Users/flyingtopher/X-Plane 11/Data.txt", 'w')
-        exit = runExperiment(title,False,True)
-        if(exit):
-            break
-        count+=1
 
-    print("Experiment Battery Complete")
+    specialPrint("Data File Ready",False,messageType.REGULAR)
+
+def specialPrint(text, inputRequested,type): 
+    if(type == messageType.REGULAR): 
+        print("-" * 81)
+        print(text)
+        print("-" * 81 + "\n")
+        if(inputRequested):
+            inputReceived = input()
+            return inputReceived
+    if(type == messageType.ERROR):
+        print("*" * 81)
+        print(text)
+        print("*" * 81 + "\n")
+
+
+def ex():
+    """
+    One Time experimental setup
+    """
+    title = specialPrint("Please Enter Experiment Set Title, leave blank for trial runs\n", True, messageType.REGULAR)
+    experimentConditionMatrix = loadFile()
+    allowPrinting = True
+    isNewExperiment = True
+    experimentCount = 0
+    """
+    Experiment Loop
+    """
+    while(experimentCount<len(experimentConditionMatrix)):
+        setUp()
+        currentConditions = experimentConditionMatrix[experimentCount+1]
+        exitExperimentLoop = runExperiment(title,currentConditions,allowPrinting,isNewExperiment)
+        if(exitExperimentLoop):
+            break
+        experimentCount+=1
+        cleanUp(title)
+    """
+    End of Experiments
+    """
+    specialPrint("Experiment Battery Complete", False,messageType.REGULAR)
+
+
 
 if __name__ == "__main__":
     ex()
