@@ -1,5 +1,3 @@
-
-
 import datetime
 from math import cos, pi, sin, sqrt
 import os
@@ -10,6 +8,12 @@ from cognitiveModel import AircraftLandingModel
 import shutil
 import csv
 from enum import Enum
+from playsound import playsound
+import threading as threading
+
+# import pyautogui as pag
+
+
 
 
 class messageType(Enum):
@@ -150,7 +154,13 @@ def experimentSetUp(client,currentConditions,newExperiment):
     else:
         print("Experiment currently in progress, not resetting position and environmental conditions")
 
-def runExperiment(title,currentConditions,allowPrinting,isNewExperiment):
+def printLoop(status,data):
+    while(status):
+        print(str(data))
+    if(not status):
+        print("Thread Should Finish Now")
+
+def runExperiment(title,currentConditions,allowPrinting,isNewExperiment,experimentCount):
     specialPrint("New Experiment\nSetting Up the Simulation",False,messageType.REGULAR)
     startTime = 0
     endTime = 0
@@ -160,7 +170,7 @@ def runExperiment(title,currentConditions,allowPrinting,isNewExperiment):
     newExperiment =  isNewExperiment
 
     while(timeElapsed <= timeoutLimit and experimentInProgress):
-        # print("Time Elapsed: -----> " + str(timeElapsed))
+        
         try:
             with xpc.XPlaneConnect() as client:
                 """ 
@@ -180,14 +190,21 @@ def runExperiment(title,currentConditions,allowPrinting,isNewExperiment):
                 cogModel.client.pauseSim(False)
                 newExperiment = False
                 
+
+                """
+                SETUP DATA THREAD
+                """
+                # thread = threading.Thread(target=printLoop(cogModel.getSimulationStatus(),cogModel.destinations.get("airspeed")))
+                # thread.start()
                 """
                 Single Experiment Loop
                 """
+                file = open("/Users/flyingtopher/X-Plane 11/Data.txt")
                 while(experimentInProgress):
                     cogModel.update_aircraft_state() 
                     cogModel.update_controls_simultaneously()
                     client.pauseSim(False)          #Unpause Simulator
-                    sleep(0.05)                     # Let Simulator Run 50 Milliseconds
+                    sleep(2)                     # Let Simulator Run 50 Milliseconds
                     startTime = time.time()
                     experimentInProgress = cogModel.getSimulationStatus()
         except:
@@ -210,28 +227,45 @@ def runExperiment(title,currentConditions,allowPrinting,isNewExperiment):
     """
     Ask Experimenter if they would like to exit experiment battery early 
     """
-    exitDecision = input("Press 'y' or any key to continue, press 'n' to exit...")
+    # exitDecision = input("Press 'y' or any key to continue, press 'n' to exit...")
+    exitDecision = "yes"
+    
     if(exitDecision == "n"):
         exitExperimentLoop = True
     else:
         exitExperimentLoop = False
     return exitExperimentLoop
 
+
+def say(msg = "Finish", voice = "Victoria"):
+        os.system(f'say -v {voice} {"Hello"}')
+
+# def playSound():
+#     # wave_obj = sa.WaveObject.from_wave_file("Python3/src/experiments/terrain-terrain,-pull-up!-pull-up!-made-with-Voicemod.wav")
+#     # wave_obj.play()
+#     # # play_obj.wait_done()
+#     # song = AudioSegment.from_wav("Python3/src/experiments/terrain-terrain,-pull-up!-pull-up!-made-with-Voicemod.wav")
+#     # play(song)
+#     # playsound('Python3/src/experiments/terrain-terrain,-pull-up!-pull-up!-made-with-Voicemod.wav')
+
+    
+
 def setUp():
     open("/Users/flyingtopher/X-Plane 11/Data.txt", 'w')
     specialPrint("Data Collection File Ready",False,messageType.REGULAR)
 
-def cleanUp(title):
+def cleanUp(count,title):
     now = datetime.datetime
-    shutil.copy("/Users/flyingtopher/X-Plane 11/Data.txt", "/Users/flyingtopher/Desktop/Test Destination/" + title + "_" + str(now.now()) + "_" + ".txt")
+    # shutil.copy("/Users/flyingtopher/X-Plane 11/Data.txt", "/Users/flyingtopher/Desktop/Test Destination/" + title + "_"+ count + "_" + str(now.now()) + "_" + ".txt")
+    shutil.copy("/Users/flyingtopher/X-Plane 11/Data.txt", "/Users/flyingtopher/Desktop/Test Destination/" + title + "_"+ str(count) + "_" + ".txt")
     print("CLEAN UP: Data File Deleted and Reset")
-
     specialPrint("Data File Ready",False,messageType.REGULAR)
 
 def specialPrint(text, inputRequested,type): 
     if(type == messageType.REGULAR): 
         print("-" * 81)
-        print(text)
+        print('====> ', end='')
+        print(text, end= " <====\n")
         print("-" * 81 + "\n")
         if(inputRequested):
             inputReceived = input()
@@ -242,26 +276,32 @@ def specialPrint(text, inputRequested,type):
         print("*" * 81 + "\n")
 
 
+
 def ex():
+    # playSound()
     """
     One Time experimental setup
     """
-    title = specialPrint("Please Enter Experiment Set Title, leave blank for trial runs\n", True, messageType.REGULAR)
+    title = specialPrint("Please Enter Experiment Set Title, leave blank for trial runs", False, messageType.REGULAR) 
+    startAt = input("Start At Experiment #")
     experimentConditionMatrix = loadFile()
-    allowPrinting = True
+    title = str(experimentConditionMatrix[0][0])
+    specialPrint("Title is: " + title, False, messageType.REGULAR)
+    allowPrinting = False
     isNewExperiment = True
-    experimentCount = 0
+    experimentCount = int(startAt)
     """
     Experiment Loop
     """
     while(experimentCount<len(experimentConditionMatrix)):
         setUp()
-        currentConditions = experimentConditionMatrix[experimentCount+1]
-        exitExperimentLoop = runExperiment(title,currentConditions,allowPrinting,isNewExperiment)
+        currentConditions = experimentConditionMatrix[experimentCount]
+        exitExperimentLoop = runExperiment(title,currentConditions,allowPrinting,isNewExperiment,(experimentCount+1))
         if(exitExperimentLoop):
             break
         experimentCount+=1
-        cleanUp(title)
+        cleanUp((experimentCount),title)
+        # pag.alert(text="Experiment " + str(experimentCount+1) + " complete. Starting new Experiment", title="EXPERIMENT STATUS UPDATE")
     """
     End of Experiments
     """

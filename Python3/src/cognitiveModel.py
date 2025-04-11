@@ -388,7 +388,6 @@ class AircraftLandingModel(pyactr.ACTRModel):
         # Send all controls simultaneously to X-Plane
         self.send_controls_to_xplane(yoke_pull, yoke_steer+additive, rudder, throttle)
 
-
     def send_controls_to_xplane(self, yoke_pull, yoke_steer, rudder, throttle):
         """
         Sends all control inputs to X-Plane using XPlaneConnect
