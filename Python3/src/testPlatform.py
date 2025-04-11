@@ -36,6 +36,7 @@ def eulerToQuat(psiInput,thetaInput,phiInput):
 
 def loadFile():
     filename = "Python3/src/experiments/weather_files/weather.csv"
+    filename = "Python3/src/experiments/weather_files/turbulence.csv"
     with open(filename,"r") as f:
         matrix = list(csv.reader(f,delimiter=','))
         print(matrix)
@@ -115,11 +116,24 @@ def experimentSetUp(client,currentConditions,newExperiment):
         # client.sendDREF(windLayer2,15000)
         # client.sendDREF(windLayer3,15000)
         print("Setting Wind Direction and Speed")
-
         client.sendDREF(windDirection,float(currentConditions[3]))
         print("Set 1")
         client.sendDREF(windSpeed,float(currentConditions[4]))
         print("Set 2")
+
+
+        print("Setting Turbulence Level")
+        turbulenceDREF = "sim/weather/turbulence[0]"
+        client.sendDREF(turbulenceDREF,float(currentConditions[5]))
+
+        print("Setting Thermals")
+        thermalRateDREF = "sim/weather/thermal_rate_ms"
+        thermalPercentDREF = "sim/weather/thermal_percent"
+        thermalAltitudeDREF = "sim/weather/thermal_altitude_msl_m"
+        client.sendDREF(thermalRateDREF,float(currentConditions[6]))
+        client.sendDREF(thermalPercentDREF,float(currentConditions[7]))
+        client.sendDREF(thermalAltitudeDREF,float(currentConditions[8]))
+
 
 
         # client.sendDREF(turbulence,turbulencePercentage)
@@ -146,10 +160,19 @@ def experimentSetUp(client,currentConditions,newExperiment):
             20 - Latitude and Longitude
         """
         message = "Conditions are set as\n" \
+        "Experiment #: {} \n"\
         "Starting Altitude: {} \n" \
         "Layer Altitude: {} \n" \
         "Wind Direction: {} \n" \
-        "Wind Speed: {} \n".format(currentConditions[1],currentConditions[2],currentConditions[3],currentConditions[4])
+        "Wind Speed: {} \n" \
+        "Turbulence: {} \n" \
+        "Thermal Rate: {} \n" \
+        "Thermal Percent: {}\n" \
+        "Thermal Altitude: {}\n".format(currentConditions[0],currentConditions[1],currentConditions[2],currentConditions[3],currentConditions[4],
+                                        currentConditions[5],currentConditions[6],currentConditions[7],currentConditions[8])
+
+
+
         specialPrint(message,False,messageType.REGULAR)        
     else:
         print("Experiment currently in progress, not resetting position and environmental conditions")
@@ -292,7 +315,7 @@ def setUp():
 def cleanUp(count,title):
     now = datetime.datetime
     # shutil.copy("/Users/flyingtopher/X-Plane 11/Data.txt", "/Users/flyingtopher/Desktop/Test Destination/" + title + "_"+ count + "_" + str(now.now()) + "_" + ".txt")
-    shutil.copy("/Users/flyingtopher/X-Plane 11/Data.txt", "/Users/flyingtopher/Desktop/Test Destination/" + title + "_"+ str(count) + "_" + ".txt")
+    shutil.copy("/Users/flyingtopher/X-Plane 11/Data.txt", "/Users/flyingtopher/Desktop/Test Destination/Current Experiment/" + title + "_"+ str(count) + "_" + ".txt")
     print("CLEAN UP: Data File Deleted and Reset")
     specialPrint("Data File Ready",False,messageType.REGULAR)
 
@@ -343,6 +366,9 @@ def ex():
     """
     End of Experiments
     """
+    now = datetime.datetime
+    ##Adding something to copy all the battery files into a safe folder so they don't get overwritten
+    shutil.copytree("/Users/flyingtopher/Desktop/Test Destination/Current Experiment", ("/Users/flyingtopher/Desktop/Test Destination/Data Storage/" + str(now.now())), dirs_exist_ok=True)
     specialPrint("Experiment Battery Complete", False,messageType.REGULAR)
 
 

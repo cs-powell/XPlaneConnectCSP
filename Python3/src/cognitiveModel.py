@@ -380,8 +380,8 @@ class AircraftLandingModel(pyactr.ACTRModel):
         ##Method 2: Same Control Statements with Change in Parameter to decided pitch from Airspeed ---> Local Pitch Relative to the Horizon
 
         rudder = rudder * -1
-
         additive = rudder*1.0
+        
         #Switch Target for Pitch to Local Pitch Axis (ex. +10 Degrees nose up)
         if(self.printControlsFlag):
             self.printControls(1,0,yoke_pull,yoke_steer+additive,rudder,throttle) #PRINT CONTROLS 
