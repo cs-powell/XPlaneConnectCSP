@@ -173,10 +173,20 @@ def log(cogModel, file,timeElapsed):
     brakeDREF = "sim/cockpit2/controls/parking_brake_ratio"
     wheelSpeedDREF = "sim/flightmodel2/gear/tire_rotation_speed_rad_sec"
     wheelWeightDREF = "sim/flightmodel/parts/tire_vrt_def_veh"
-    sources = [latitudeDREF, longitudeDREF,altitudeAGLDREF, pitchDREF]
+    sources = [latitudeDREF, longitudeDREF,altitudeAGLDREF, pitchDREF,rollDREF]
     data = cogModel.client.getDREFs(sources)
+    mainString = []
     # data = client.readDATA()
-    file.write(str(timeElapsed) + "," + str(data[0][0]) + "," + str(data[1][0]) + "," + str(data[2][0]) + "," + str(data[3][0]) +"\n")    
+    mainString.append(str(timeElapsed))
+    mainString.append(",")
+    for d in data:
+        mainString.append(str(d[0]))
+        mainString.append(",")
+
+    mainString[len(mainString)-1] = "\n"
+    finalString = "".join(mainString)
+    file.write(finalString)
+    # file.write(str(timeElapsed) + "," + str(data[0][0]) + "," + str(data[1][0]) + "," + str(data[2][0]) + "," + str(data[3][0]) +"\n")    
 
 
 def runExperiment(title,currentConditions,allowPrinting,isNewExperiment,experimentCount,file):
@@ -315,7 +325,7 @@ def ex():
     allowPrinting = False
     isNewExperiment = True
     experimentCount = int(startAt)
-    header = "Cycle Time,Latitude, Longitude, Altitude, Pitch\n"
+    header = "Cycle Time,Latitude, Longitude, Altitude, Pitch, Roll\n"
     """
     Experiment Loop
     """
