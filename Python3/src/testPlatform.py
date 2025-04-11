@@ -160,7 +160,26 @@ def printLoop(status,data):
     if(not status):
         print("Thread Should Finish Now")
 
-def runExperiment(title,currentConditions,allowPrinting,isNewExperiment,experimentCount):
+
+def log(cogModel, file,timeElapsed):
+    airspeedDREF = "sim/cockpit2/gauges/indicators/airspeed_kts_pilot"
+    rollDREF = "sim/cockpit2/gauges/indicators/roll_AHARS_deg_pilot"
+    magneticHeadingDREF = "sim/cockpit2/gauges/indicators/heading_AHARS_deg_mag_pilot"
+    latitudeDREF = "sim/flightmodel/position/latitude" ## Lat 
+    longitudeDREF = "sim/flightmodel/position/longitude" ##Long
+    verticalSpeedDREF = "sim/flightmodel/position/vh_ind_fpm"
+    altitudeAGLDREF = "sim/flightmodel/position/y_agl"
+    pitchDREF = "sim/flightmodel/position/true_theta"
+    brakeDREF = "sim/cockpit2/controls/parking_brake_ratio"
+    wheelSpeedDREF = "sim/flightmodel2/gear/tire_rotation_speed_rad_sec"
+    wheelWeightDREF = "sim/flightmodel/parts/tire_vrt_def_veh"
+    sources = [latitudeDREF, longitudeDREF,altitudeAGLDREF, pitchDREF]
+    data = cogModel.client.getDREFs(sources)
+    # data = client.readDATA()
+    file.write(str(timeElapsed) + "," + str(data[0][0]) + "," + str(data[1][0]) + "," + str(data[2][0]) + "," + str(data[3][0]) +"\n")    
+
+
+def runExperiment(title,currentConditions,allowPrinting,isNewExperiment,experimentCount,file):
     specialPrint("New Experiment\nSetting Up the Simulation",False,messageType.REGULAR)
     startTime = 0
     endTime = 0
@@ -168,15 +187,14 @@ def runExperiment(title,currentConditions,allowPrinting,isNewExperiment,experime
     experimentInProgress = True
     timeoutLimit = 10
     newExperiment =  isNewExperiment
-
     while(timeElapsed <= timeoutLimit and experimentInProgress):
-        
         try:
             with xpc.XPlaneConnect() as client:
                 """ 
                 Test Connection
                 """
                 client.getDREF("sim/test/test_float")
+
                 """
                 Setup Model
                 """
@@ -199,14 +217,20 @@ def runExperiment(title,currentConditions,allowPrinting,isNewExperiment,experime
                 """
                 Single Experiment Loop
                 """
-                file = open("/Users/flyingtopher/X-Plane 11/Data.txt")
+                startTime = time.time()
+                endTime = time.time()
+                elapsed = endTime - startTime
                 while(experimentInProgress):
-                    cogModel.update_aircraft_state() 
-                    cogModel.update_controls_simultaneously()
-                    client.pauseSim(False)          #Unpause Simulator
-                    sleep(2)                     # Let Simulator Run 50 Milliseconds
-                    startTime = time.time()
+                    elapsed = endTime - startTime
+                    if(elapsed > 0.05):
+                        cogModel.update_aircraft_state() 
+                        cogModel.update_controls_simultaneously()
+                        client.pauseSim(False)          #Unpause Simulator
+                        startTime = time.time()
+                    # sleep(2)                     # Let Simulator Run 50 Milliseconds
+                    log(cogModel,file,elapsed)
                     experimentInProgress = cogModel.getSimulationStatus()
+                    endTime = time.time()
         except:
             endTime = time.time()
             timeElapsed = endTime - startTime
@@ -251,7 +275,8 @@ def say(msg = "Finish", voice = "Victoria"):
     
 
 def setUp():
-    open("/Users/flyingtopher/X-Plane 11/Data.txt", 'w')
+    file = open("/Users/flyingtopher/X-Plane 11/Data.txt", 'w')
+    file.close()
     specialPrint("Data Collection File Ready",False,messageType.REGULAR)
 
 def cleanUp(count,title):
@@ -290,13 +315,16 @@ def ex():
     allowPrinting = False
     isNewExperiment = True
     experimentCount = int(startAt)
+    header = "Cycle Time,Latitude, Longitude, Altitude, Pitch\n"
     """
     Experiment Loop
     """
     while(experimentCount<len(experimentConditionMatrix)):
         setUp()
+        file = open("/Users/flyingtopher/X-Plane 11/Data.txt", 'a')
+        file.write(str(header)) #Write Header to File
         currentConditions = experimentConditionMatrix[experimentCount]
-        exitExperimentLoop = runExperiment(title,currentConditions,allowPrinting,isNewExperiment,(experimentCount+1))
+        exitExperimentLoop = runExperiment(title,currentConditions,allowPrinting,isNewExperiment,(experimentCount+1),file)
         if(exitExperimentLoop):
             break
         experimentCount+=1
