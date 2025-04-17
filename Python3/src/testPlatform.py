@@ -46,7 +46,7 @@ def loadFile():
 def selectWeather(matrix,experimentNumber):
     return matrix[experimentNumber]
 
-def experimentSetUp(client,currentConditions,newExperiment):
+def experimentSetUp(client,currentConditions,newExperiment,file):
     # input("Check The Loaded File Now")
     print("Entered: EXPERIMENTSETUP")
     if(newExperiment):
@@ -146,10 +146,16 @@ def experimentSetUp(client,currentConditions,newExperiment):
         print("Setting initial velocity")
         zInit = "sim/flightmodel/position/local_vz"
         client.sendDREF(zInit, 50)
+
+
+
+        print("Setting Fuel to Experiment Level")
+        # fuel = "sim/aircraft/weight/acf_m_fuel_tot"
+        fuel = "sim/flightmodel/weight/m_fuel"
+        fuelLevels = [20,20]
+        client.sendDREF(fuel, fuelLevels)
         print("setup complete")
 
-
-        
         """
         Set orientation and Position
             1 - Time 
@@ -168,12 +174,13 @@ def experimentSetUp(client,currentConditions,newExperiment):
         "Turbulence: {} \n" \
         "Thermal Rate: {} \n" \
         "Thermal Percent: {}\n" \
-        "Thermal Altitude: {}\n".format(currentConditions[0],currentConditions[1],currentConditions[2],currentConditions[3],currentConditions[4],
-                                        currentConditions[5],currentConditions[6],currentConditions[7],currentConditions[8])
+        "Thermal Altitude: {}\n" \
+        "Cognitive Delay: {}\n".format(currentConditions[0],currentConditions[1],currentConditions[2],currentConditions[3],currentConditions[4],
+                                        currentConditions[5],currentConditions[6],currentConditions[7],currentConditions[8],currentConditions[9])
+        specialPrint(message,False,messageType.REGULAR)
+        # file.write("[[[" + message + "]]]")
 
-
-
-        specialPrint(message,False,messageType.REGULAR)        
+          
     else:
         print("Experiment currently in progress, not resetting position and environmental conditions")
 
@@ -223,7 +230,7 @@ def runExperiment(title,currentConditions,allowPrinting,isNewExperiment,experime
     while(timeElapsed <= timeoutLimit and experimentInProgress):
         try:
             with xpc.XPlaneConnect() as client:
-                """ 
+                """
                 Test Connection
                 """
                 client.getDREF("sim/test/test_float")
@@ -235,13 +242,13 @@ def runExperiment(title,currentConditions,allowPrinting,isNewExperiment,experime
                 """
                 Set Simulator Conditions
                 """
-                experimentSetUp(cogModel.client,currentConditions,newExperiment)
+                experimentSetUp(cogModel.client,currentConditions,newExperiment,file)
+                
+                currentDelay = float(currentConditions[9])
                 """
                 """
                 cogModel.client.pauseSim(False)
                 newExperiment = False
-                
-
                 """
                 SETUP DATA THREAD
                 """
@@ -255,7 +262,7 @@ def runExperiment(title,currentConditions,allowPrinting,isNewExperiment,experime
                 elapsed = endTime - startTime
                 while(experimentInProgress):
                     elapsed = endTime - startTime
-                    if(elapsed > 0.05):
+                    if(elapsed > currentDelay):
                         cogModel.update_aircraft_state() 
                         cogModel.update_controls_simultaneously()
                         client.pauseSim(False)          #Unpause Simulator
@@ -340,38 +347,39 @@ def ex():
     """
     One Time experimental setup
     """
-    title = specialPrint("Please Enter Experiment Set Title, leave blank for trial runs", False, messageType.REGULAR) 
-    startAt = input("Start At Experiment #")
+    prefix = specialPrint("Please Enter Experiment Set Title, leave blank for trial runs", True, messageType.REGULAR) 
     experimentConditionMatrix = loadFile()
-    title = str(experimentConditionMatrix[0][0])
+    startAt = input("Start At Experiment # 1 to " + str(len(experimentConditionMatrix)-1))
+
+    title = str(prefix + "--" + experimentConditionMatrix[0][0])
     specialPrint("Title is: " + title, False, messageType.REGULAR)
     allowPrinting = False
     isNewExperiment = True
     experimentCount = int(startAt)
     header = "Cycle Time,Latitude, Longitude, Altitude, Pitch, Roll\n"
+    file2 = open("/Users/flyingtopher/Desktop/Test Destination/Current Experiment/CurrentExperimentList.txt", 'w')
     """
     Experiment Loop
     """
     while(experimentCount<len(experimentConditionMatrix)):
         setUp()
         file = open("/Users/flyingtopher/X-Plane 11/Data.txt", 'a')
-        file.write(str(header)) #Write Header to File
+        file.write(str(header)) #Write Header to File$
         currentConditions = experimentConditionMatrix[experimentCount]
-        exitExperimentLoop = runExperiment(title,currentConditions,allowPrinting,isNewExperiment,(experimentCount+1),file)
+        file2.write(str(experimentCount) +" // " + str(currentConditions) + "\n")
+        exitExperimentLoop = runExperiment(title,currentConditions,allowPrinting,isNewExperiment,experimentCount,file)
         if(exitExperimentLoop):
             break
+        cleanUp(experimentCount,title)
         experimentCount+=1
-        cleanUp((experimentCount),title)
         # pag.alert(text="Experiment " + str(experimentCount+1) + " complete. Starting new Experiment", title="EXPERIMENT STATUS UPDATE")
     """
     End of Experiments
     """
     now = datetime.datetime
     ##Adding something to copy all the battery files into a safe folder so they don't get overwritten
-    shutil.copytree("/Users/flyingtopher/Desktop/Test Destination/Current Experiment", ("/Users/flyingtopher/Desktop/Test Destination/Data Storage/" + str(now.now())), dirs_exist_ok=True)
+    shutil.copytree("/Users/flyingtopher/Desktop/Test Destination/Current Experiment", ("/Users/flyingtopher/Desktop/Test Destination/Data Storage/" + title + " " + str(now.now())), dirs_exist_ok=True)
     specialPrint("Experiment Battery Complete", False,messageType.REGULAR)
-
-
 
 if __name__ == "__main__":
     ex()
